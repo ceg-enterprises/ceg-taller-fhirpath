@@ -410,6 +410,43 @@
       color: var(--json-key);
     }
 
+    /* Note style for function explanations */
+    .info-note {
+      background: var(--bg-tertiary);
+      border: 1px dashed var(--border-highlight);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .info-note::before {
+      content: "Funciones FHIRPath:";
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+    }
+
+    .info-note strong {
+      color: var(--hl7-blue-light);
+      font-weight: 600;
+    }
+
+    .info-note code {
+      background: var(--bg-primary);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--json-key);
+    }
+
     /* Execute button */
     .execute-btn {
       display: flex;
@@ -744,7 +781,370 @@
       width: 12px;
       height: 12px;
     }
+
+    /* ==================== VIEW MANAGEMENT ==================== */
+    .view {
+      display: none;
+      height: 100%;
+    }
+
+    .view.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==================== HOME VIEW ==================== */
+    .home-view {
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      padding: 2rem;
+    }
+
+    .home-content {
+      text-align: center;
+      max-width: 900px;
+    }
+
+    .home-logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1.5rem;
+    }
+
+    .home-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--hl7-blue) 0%, var(--hl7-blue-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .home-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 3rem;
+    }
+
+    .home-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 700px) {
+      .home-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .home-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .home-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--hl7-blue);
+      box-shadow: 0 12px 40px rgba(0, 102, 161, 0.2);
+    }
+
+    .home-card-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1.5rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--hl7-blue) 0%, #004d7a 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .home-card-icon svg {
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+
+    .home-card-icon.green {
+      background: linear-gradient(135deg, var(--success-green) 0%, #007a4d 100%);
+    }
+
+    .home-card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .home-card-description {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ==================== LIVE TEST VIEW ==================== */
+    .live-test-view {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .live-test-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .live-test-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .live-test-title h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-highlight);
+    }
+
+    .back-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .live-test-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    @media (max-width: 900px) {
+      .live-test-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+      }
+    }
+
+    .live-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .live-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .live-panel-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .live-panel-title svg {
+      width: 16px;
+      height: 16px;
+      color: var(--hl7-blue-light);
+    }
+
+    .live-panel-body {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .json-input {
+      flex: 1;
+      width: 100%;
+      padding: 1rem;
+      background: var(--bg-primary);
+      border: none;
+      color: var(--text-primary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+    }
+
+    .json-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .expression-input-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .expression-input {
+      flex: 1;
+      padding: 0.6rem 0.75rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .expression-input:focus {
+      border-color: var(--hl7-blue);
+    }
+
+    .expression-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .result-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .result-panel pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+
+    .result-error {
+      color: var(--error-red);
+      padding: 1rem;
+      background: rgba(248, 81, 73, 0.1);
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .result-empty {
+      color: var(--text-muted);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .example-expressions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .example-expressions-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      width: 100%;
+      margin-bottom: 0.25rem;
+    }
+
+    .example-btn {
+      padding: 0.35rem 0.6rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .example-btn:hover {
+      background: var(--hl7-blue);
+      border-color: var(--hl7-blue);
+      color: white;
+    }
+
+    /* Header home button */
+    .home-btn {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .home-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .home-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .home-btn.visible {
+      display: flex;
+    }
   </style>
+  <!-- FHIRPath.js library (browser build from official release) -->
+  <script src="lib/fhirpath.min.js" charset="UTF-8"></script>
+  <script src="lib/fhirpath.r4.min.js" charset="UTF-8"></script>
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -752,10 +1152,16 @@
   <div class="container">
     <header>
       <div class="header-left">
-        <img src="logo-ceg-icon.svg" alt="CEG Consultores" class="logo-ceg">
-        <span class="header-title">Taller FHIRPath</span>
+        <img src="logo-ceg-icon.svg" alt="CEG Consultores" class="logo-ceg" style="cursor: pointer;" onclick="showView('home')">
+        <span class="header-title" style="cursor: pointer;" onclick="showView('home')">Taller FHIRPath</span>
       </div>
       <div class="header-right">
+        <button class="home-btn" id="homeBtn" onclick="showView('home')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Inicio
+        </button>
         <div class="server-status" id="serverStatus">
           <span class="dot"></span>
           <span id="serverStatusText">Verificando...</span>
@@ -771,43 +1177,144 @@
       </div>
     </header>
 
-    <!-- Progress bar -->
-    <div class="progress-container">
-      <div class="progress-header">
-        <span class="progress-title">Conectaton HL7 Chile 2025</span>
-        <span class="progress-counter" id="progressCounter">Paso 1 de 10</span>
-      </div>
-      <div class="progress-bar" id="progressBar">
-        <!-- Steps will be rendered here -->
+    <!-- ==================== HOME VIEW ==================== -->
+    <div id="homeView" class="view home-view active">
+      <div class="home-content">
+        <img src="logo-ceg-icon.svg" alt="CEG Consultores" class="home-logo">
+        <h1 class="home-title">Taller FHIRPath</h1>
+        <p class="home-subtitle">Conectaton HL7 Chile 2025</p>
+
+        <div class="home-cards">
+          <div class="home-card" onclick="showView('workshop')">
+            <div class="home-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            </div>
+            <h3 class="home-card-title">Ejercicios del Taller</h3>
+            <p class="home-card-description">Aprende FHIRPath paso a paso con ejercicios practicos de validacion y busqueda usando HAPI FHIR</p>
+          </div>
+
+          <div class="home-card" onclick="showView('livetest')">
+            <div class="home-card-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+            </div>
+            <h3 class="home-card-title">Live Test</h3>
+            <p class="home-card-description">Prueba expresiones FHIRPath en tiempo real sobre cualquier recurso FHIR</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Main content -->
-    <div class="main-content">
-      <div class="step-card" id="stepCard">
-        <!-- Step content will be rendered here -->
+    <!-- ==================== WORKSHOP VIEW (STEPPER) ==================== -->
+    <div id="workshopView" class="view">
+      <!-- Progress bar -->
+      <div class="progress-container">
+        <div class="progress-header">
+          <span class="progress-title">Conectaton HL7 Chile 2025</span>
+          <span class="progress-counter" id="progressCounter">Paso 1 de 10</span>
+        </div>
+        <div class="progress-bar" id="progressBar">
+          <!-- Steps will be rendered here -->
+        </div>
       </div>
+
+      <!-- Main content -->
+      <div class="main-content">
+        <div class="step-card" id="stepCard">
+          <!-- Step content will be rendered here -->
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="navigation">
+        <button class="nav-btn prev" id="prevBtn" onclick="prevStep()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Anterior
+        </button>
+        <div class="nav-info">
+          <div class="nav-info-title">Siguiente paso</div>
+          <div class="nav-info-step" id="nextStepPreview">--</div>
+        </div>
+        <button class="nav-btn next" id="nextBtn" onclick="nextStep()">
+          Siguiente
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </nav>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navigation">
-      <button class="nav-btn prev" id="prevBtn" onclick="prevStep()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Anterior
-      </button>
-      <div class="nav-info">
-        <div class="nav-info-title">Siguiente paso</div>
-        <div class="nav-info-step" id="nextStepPreview">--</div>
+    <!-- ==================== LIVE TEST VIEW ==================== -->
+    <div id="livetestView" class="view live-test-view">
+      <div class="live-test-header">
+        <div class="live-test-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: var(--success-green);">
+            <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+          <h2>FHIRPath Live Test</h2>
+        </div>
       </div>
-      <button class="nav-btn next" id="nextBtn" onclick="nextStep()">
-        Siguiente
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      </button>
-    </nav>
+
+      <div class="live-test-content">
+        <!-- Input Panel -->
+        <div class="live-panel">
+          <div class="live-panel-header">
+            <span class="live-panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              Recurso FHIR (JSON)
+            </span>
+            <button class="copy-btn" onclick="loadSamplePatient()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+              </svg>
+              Cargar ejemplo
+            </button>
+          </div>
+          <div class="live-panel-body">
+            <textarea id="jsonInput" class="json-input" placeholder="Pega aqui tu recurso FHIR en formato JSON..."></textarea>
+          </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="live-panel">
+          <div class="live-panel-header">
+            <span class="live-panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+              Resultado
+            </span>
+          </div>
+          <div class="live-panel-body">
+            <div class="expression-input-container">
+              <input type="text" id="expressionInput" class="expression-input" placeholder="Escribe una expresion FHIRPath..." oninput="evaluateExpression()">
+            </div>
+            <div class="example-expressions">
+              <span class="example-expressions-label">Ejemplos:</span>
+              <button class="example-btn" onclick="setExpression('name.given')">name.given</button>
+              <button class="example-btn" onclick="setExpression('identifier.value')">identifier.value</button>
+              <button class="example-btn" onclick="setExpression(&quot;telecom.where(system='phone')&quot;)">telecom.where()</button>
+              <button class="example-btn" onclick="setExpression('birthDate.exists()')">birthDate.exists()</button>
+              <button class="example-btn" onclick="setExpression(&quot;name.family.startsWith('G')&quot;)">startsWith()</button>
+              <button class="example-btn" onclick="setExpression(&quot;identifier.where(type.coding.code='NNCHL').value&quot;)">RUT</button>
+            </div>
+            <div id="resultPanel" class="result-panel">
+              <div class="result-empty">
+                <p>Escribe una expresion FHIRPath para ver el resultado</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <footer>
       <img src="logo-ceg-icon.svg" alt="CEG" class="footer-logo">
@@ -834,11 +1341,11 @@
         description: 'Cargamos un StructureDefinition con 3 invariantes FHIRPath. Con <code>severity: warning</code> solo generan advertencias.',
         highlights: [
           { type: 'info', text: '<strong>cl-rut-formato:</strong> <code>identifier.where(type.coding.code=\'NNCHL\').all(value.matches(\'^[0-9]+-[0-9Kk]$\'))</code>' },
-          { type: 'info', text: '<strong>where()</strong> filtra identificadores con codigo NNCHL. <strong>all()</strong> verifica que TODOS cumplan. <strong>matches()</strong> valida con regex.' },
+          { type: 'note', text: '<strong>where()</strong> filtra identificadores con codigo NNCHL. <strong>all()</strong> verifica que TODOS cumplan (si no hay elementos, retorna true). <strong>matches()</strong> valida con expresion regular.' },
           { type: 'info', text: '<strong>cl-contacto-emergencia:</strong> <code>contact.exists() or birthDate.empty()</code>' },
-          { type: 'info', text: '<strong>exists()</strong> retorna true si hay al menos un contacto. <strong>empty()</strong> true si no hay fecha de nacimiento.' },
+          { type: 'note', text: '<strong>exists()</strong> retorna true si hay al menos un elemento. <strong>empty()</strong> retorna true si la coleccion esta vacia.' },
           { type: 'info', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(system=\'phone\' and use=\'mobile\').all(value.startsWith(\'+56\'))</code>' },
-          { type: 'info', text: '<strong>startsWith()</strong> verifica que el valor comience con +56 (prefijo chileno).' }
+          { type: 'note', text: '<strong>startsWith()</strong> verifica que el string comience con el prefijo indicado (+56 para Chile).' }
         ],
         resource: 'structureDefinitionV1'
       },
@@ -885,12 +1392,12 @@
         endpoint: '/StructureDefinition/PacienteChilenoDemo',
         description: 'Actualizamos el perfil con <code>severity: error</code> y expresiones mas estrictas:',
         highlights: [
-          { type: 'warning', text: '<strong>cl-rut-formato:</strong> <code>value.matches(\'^[0-9]{7,8}-[0-9Kk]$\')</code>' },
-          { type: 'info', text: 'Ahora exige 7-8 digitos con <code>{7,8}</code> en la regex. RUT "123-4" ya no pasa.' },
+          { type: 'warning', text: '<strong>cl-rut-formato:</strong> <code>identifier.where(...).all(value.matches(\'^[0-9]{7,8}-[0-9Kk]$\'))</code>' },
+          { type: 'note', text: 'Ahora exige 7-8 digitos con <code>{7,8}</code> en la regex. RUT "123-4" ya no pasa.' },
           { type: 'warning', text: '<strong>cl-contacto-emergencia:</strong> <code>today().toString().substring(0,4).toInteger() - birthDate...</code>' },
-          { type: 'info', text: '<strong>today()</strong> fecha actual. <strong>substring(0,4)</strong> extrae el año. <strong>toInteger()</strong> convierte a numero para calcular edad.' },
-          { type: 'warning', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).exists() and ...</code>' },
-          { type: 'info', text: 'Ahora usa <strong>exists()</strong> (DEBE tener movil) en vez de <strong>empty()</strong> (opcional).' }
+          { type: 'note', text: '<strong>today()</strong> fecha actual. <strong>substring(0,4)</strong> extrae los primeros 4 caracteres (año). <strong>toInteger()</strong> convierte string a numero para calcular la edad.' },
+          { type: 'warning', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).exists() and ...all(value.startsWith(\'+56\'))</code>' },
+          { type: 'note', text: 'Cambio clave: <strong>exists()</strong> exige que DEBE haber telefono movil, a diferencia de v1 donde era opcional.' }
         ],
         resource: 'structureDefinitionV2'
       },
@@ -971,9 +1478,7 @@
         description: 'Registramos un SearchParameter que usa FHIRPath para indexar el RUT:',
         highlights: [
           { type: 'success', text: '<strong>Expression:</strong> <code>Patient.identifier.where(type.coding.code=\'NNCHL\')</code>' },
-          { type: 'info', text: '<strong>Patient.identifier</strong> - Navega a la coleccion de identificadores del paciente' },
-          { type: 'info', text: '<strong>where(type.coding.code=\'NNCHL\')</strong> - Filtra solo los que tengan codigo NNCHL (RUT chileno)' },
-          { type: 'info', text: 'El servidor indexa el <strong>value</strong> del identifier filtrado para busquedas rapidas' }
+          { type: 'note', text: '<strong>Patient.identifier</strong> navega a la coleccion de identificadores. <strong>where()</strong> filtra solo los que tengan codigo NNCHL (RUT chileno). El servidor indexa el <strong>value</strong> del identifier filtrado.' }
         ],
         resource: 'searchParameter'
       },
@@ -1026,7 +1531,7 @@
                   "key": "cl-rut-formato",
                   "severity": "warning",
                   "human": "El RUT debe tener formato valido (digitos-digito verificador)",
-                  "expression": "identifier.where(type.coding.code='NNCHL').empty() or identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]+-[0-9Kk]$'))",
+                  "expression": "identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]+-[0-9Kk]$'))",
                   "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
                 },
                 {
@@ -1040,7 +1545,7 @@
                   "key": "cl-telefono-movil",
                   "severity": "warning",
                   "human": "Si existe telefono movil, debe tener formato chileno (+56)",
-                  "expression": "telecom.where(system='phone' and use='mobile').empty() or telecom.where(system='phone' and use='mobile').all(value.startsWith('+56'))",
+                  "expression": "telecom.where(system='phone' and use='mobile').all(value.startsWith('+56'))",
                   "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
                 }
               ]
@@ -1088,7 +1593,7 @@
                   "key": "cl-rut-formato",
                   "severity": "error",
                   "human": "El RUT DEBE tener formato valido con 7-8 digitos (ej: 12345678-9)",
-                  "expression": "identifier.where(type.coding.code='NNCHL').empty() or identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]{7,8}-[0-9Kk]$'))",
+                  "expression": "identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]{7,8}-[0-9Kk]$'))",
                   "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
                 },
                 {
@@ -1325,7 +1830,7 @@
               <div class="info-section-title">Descripcion</div>
               <p>${step.description}</p>
               ${step.highlights.map(h => `
-                <div class="info-highlight ${h.type}">${h.text}</div>
+                <div class="${h.type === 'note' ? 'info-note' : 'info-highlight ' + h.type}">${h.text}</div>
               `).join('')}
             </div>
             <button class="execute-btn ${executeButtonClass}" onclick="executeCurrentStep()" ${state === 'loading' ? 'disabled' : ''}>
@@ -1357,14 +1862,14 @@
             <div class="response-body" id="responseBody">
               ${resource ? `
                 <div class="view-toggle">
-                  <button class="view-toggle-btn active" onclick="showView('request')">
+                  <button class="view-toggle-btn active" onclick="showRequestResponse('request')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                       <polyline points="14 2 14 8 20 8"/>
                     </svg>
                     Request
                   </button>
-                  <button class="view-toggle-btn" onclick="showView('response')">
+                  <button class="view-toggle-btn" onclick="showRequestResponse('response')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
@@ -1394,10 +1899,10 @@
     }
 
     let currentViewData = { request: null, response: null };
-    let currentView = 'request';
+    let currentRequestView = 'request';
 
-    function showView(view) {
-      currentView = view;
+    function showRequestResponse(view) {
+      currentRequestView = view;
       const buttons = document.querySelectorAll('.view-toggle-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
       buttons[view === 'request' ? 0 : 1].classList.add('active');
@@ -1597,18 +2102,138 @@
 
     // ==================== KEYBOARD NAVIGATION ====================
     document.addEventListener('keydown', (e) => {
+      // Only handle keyboard navigation in workshop view
+      const workshopView = document.getElementById('workshopView');
+      if (!workshopView.classList.contains('active')) return;
+
       if (e.key === 'ArrowLeft') prevStep();
       else if (e.key === 'ArrowRight') nextStep();
       else if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) executeCurrentStep();
     });
 
+    // ==================== VIEW MANAGEMENT ====================
+    let currentMainView = 'home';
+
+    function showView(viewName) {
+      currentMainView = viewName;
+
+      // Hide all views
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
+      // Show selected view
+      const viewEl = document.getElementById(viewName + 'View');
+      if (viewEl) viewEl.classList.add('active');
+
+      // Show/hide home button
+      const homeBtn = document.getElementById('homeBtn');
+      if (viewName === 'home') {
+        homeBtn.classList.remove('visible');
+      } else {
+        homeBtn.classList.add('visible');
+      }
+
+      // Initialize workshop view if needed
+      if (viewName === 'workshop') {
+        renderProgressBar();
+        renderStep();
+      }
+    }
+
+    // ==================== LIVE TEST - FHIRPATH EVALUATION ====================
+    const samplePatient = {
+      "resourceType": "Patient",
+      "id": "ejemplo-chileno",
+      "identifier": [{
+        "type": {
+          "coding": [{
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "NNCHL",
+            "display": "RUT Chile"
+          }]
+        },
+        "system": "http://regcivil.cl/run",
+        "value": "12345678-9"
+      }],
+      "active": true,
+      "name": [{
+        "use": "official",
+        "family": "Gonzalez",
+        "given": ["Juan", "Carlos"]
+      }],
+      "telecom": [
+        {"system": "phone", "value": "+56912345678", "use": "mobile"},
+        {"system": "email", "value": "juan@example.com", "use": "home"}
+      ],
+      "gender": "male",
+      "birthDate": "1990-05-15",
+      "address": [{
+        "use": "home",
+        "city": "Santiago",
+        "country": "Chile"
+      }]
+    };
+
+    function loadSamplePatient() {
+      const jsonInput = document.getElementById('jsonInput');
+      jsonInput.value = JSON.stringify(samplePatient, null, 2);
+      evaluateExpression();
+    }
+
+    function setExpression(expr) {
+      const expressionInput = document.getElementById('expressionInput');
+      expressionInput.value = expr;
+      evaluateExpression();
+    }
+
+    function evaluateExpression() {
+      const jsonInput = document.getElementById('jsonInput');
+      const expressionInput = document.getElementById('expressionInput');
+      const resultPanel = document.getElementById('resultPanel');
+
+      const jsonText = jsonInput.value.trim();
+      const expression = expressionInput.value.trim();
+
+      // Empty state
+      if (!expression) {
+        resultPanel.innerHTML = '<div class="result-empty"><p>Escribe una expresion FHIRPath para ver el resultado</p></div>';
+        return;
+      }
+
+      // No JSON
+      if (!jsonText) {
+        resultPanel.innerHTML = '<div class="result-empty"><p>Pega un recurso FHIR en JSON para evaluar</p></div>';
+        return;
+      }
+
+      try {
+        // Parse JSON
+        const resource = JSON.parse(jsonText);
+
+        // Evaluate FHIRPath
+        const result = fhirpath.evaluate(resource, expression);
+
+        // Display result
+        if (result.length === 0) {
+          resultPanel.innerHTML = '<div class="result-empty"><p>Sin resultados (coleccion vacia)</p></div>';
+        } else {
+          resultPanel.innerHTML = '<pre>' + syntaxHighlight(result) + '</pre>';
+        }
+      } catch (error) {
+        resultPanel.innerHTML = '<div class="result-error"><strong>Error:</strong> ' + error.message + '</div>';
+      }
+    }
+
     // ==================== INIT ====================
     initTheme();
     document.addEventListener('DOMContentLoaded', () => {
-      renderProgressBar();
-      renderStep();
       checkServerStatus();
       setInterval(checkServerStatus, 30000);
+
+      // Listen for JSON input changes
+      const jsonInput = document.getElementById('jsonInput');
+      if (jsonInput) {
+        jsonInput.addEventListener('input', evaluateExpression);
+      }
     });
   </script>
 </body>

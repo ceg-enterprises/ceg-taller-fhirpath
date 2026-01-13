@@ -26,7 +26,7 @@
             "key": "cl-rut-formato",
             "severity": "error",
             "human": "El RUT DEBE tener formato valido con 7-8 digitos (ej: 12345678-9)",
-            "expression": "identifier.where(type.coding.code='NNCHL').empty() or identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]{7,8}-[0-9Kk]$'))",
+            "expression": "identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]{7,8}-[0-9Kk]$'))",
             "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
           },
           {

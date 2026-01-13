@@ -26,7 +26,7 @@
             "key": "cl-rut-formato",
             "severity": "warning",
             "human": "El RUT debe tener formato valido (digitos-digito verificador)",
-            "expression": "identifier.where(type.coding.code='NNCHL').empty() or identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]+-[0-9Kk]$'))",
+            "expression": "identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]+-[0-9Kk]$'))",
             "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
           },
           {
@@ -40,7 +40,7 @@
             "key": "cl-telefono-movil",
             "severity": "warning",
             "human": "Si existe telefono movil, debe tener formato chileno (+56)",
-            "expression": "telecom.where(system='phone' and use='mobile').empty() or telecom.where(system='phone' and use='mobile').all(value.startsWith('+56'))",
+            "expression": "telecom.where(system='phone' and use='mobile').all(value.startsWith('+56'))",
             "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
           }
         ]
