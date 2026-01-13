@@ -791,6 +791,7 @@
     .view.active {
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     /* ==================== HOME VIEW ==================== */
@@ -1000,22 +1001,56 @@
       flex-direction: column;
     }
 
+    .json-editor-container {
+      position: relative;
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .json-highlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 1rem;
+      margin: 0;
+      background: var(--bg-primary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow: auto;
+      pointer-events: none;
+      color: var(--text-primary);
+    }
+
     .json-input {
+      position: relative;
       flex: 1;
       width: 100%;
       padding: 1rem;
-      background: var(--bg-primary);
+      background: transparent;
       border: none;
-      color: var(--text-primary);
+      color: transparent;
+      caret-color: var(--text-primary);
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.8rem;
       line-height: 1.5;
       resize: none;
       outline: none;
+      z-index: 1;
     }
 
     .json-input::placeholder {
       color: var(--text-muted);
+    }
+
+    .json-input:placeholder-shown + .json-highlight,
+    .json-editor-container:has(.json-input:placeholder-shown) .json-highlight {
+      color: transparent;
     }
 
     .expression-input-container {
@@ -1039,6 +1074,11 @@
       font-size: 0.85rem;
       outline: none;
       transition: border-color 0.2s ease;
+      resize: none;
+      overflow-y: hidden;
+      min-height: 2.2rem;
+      max-height: 8rem;
+      line-height: 1.4;
     }
 
     .expression-input:focus {
@@ -1140,6 +1180,156 @@
 
     .home-btn.visible {
       display: flex;
+    }
+
+    /* Resource Drawer */
+    .drawer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .drawer-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .resource-drawer {
+      position: fixed;
+      top: 0;
+      right: -380px;
+      width: 380px;
+      height: 100%;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+      transition: right 0.3s ease;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .resource-drawer.open {
+      right: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+    }
+
+    .drawer-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .drawer-close {
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .drawer-close:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .drawer-close svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .drawer-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .resource-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .resource-item {
+      padding: 1rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .resource-item:hover {
+      border-color: var(--hl7-blue);
+      background: var(--bg-secondary);
+    }
+
+    .resource-item-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .resource-item-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .resource-item-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .resource-item-icon.patient { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+    .resource-item-icon.observation { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+    .resource-item-icon.condition { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    .resource-item-icon.medication { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+    .resource-item-icon.bundle { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+    .resource-item-icon.practitioner { background: rgba(20, 184, 166, 0.15); color: #14b8a6; }
+
+    .resource-item-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .resource-item-type {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .resource-item-description {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
     }
   </style>
   <!-- FHIRPath.js library (browser build from official release) -->
@@ -1271,15 +1461,29 @@
               </svg>
               Recurso FHIR (JSON)
             </span>
-            <button class="copy-btn" onclick="loadSamplePatient()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
-              </svg>
-              Cargar ejemplo
-            </button>
+            <div style="display: flex; gap: 8px;">
+              <button class="copy-btn" onclick="formatJsonInput()" title="Formatear JSON">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>
+                </svg>
+                Formatear
+              </button>
+              <button class="copy-btn" onclick="toggleResourceDrawer()" title="Cargar recurso de ejemplo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="12" y1="18" x2="12" y2="12"/>
+                  <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+                Recursos
+              </button>
+            </div>
           </div>
           <div class="live-panel-body">
-            <textarea id="jsonInput" class="json-input" placeholder="Pega aqui tu recurso FHIR en formato JSON..."></textarea>
+            <div class="json-editor-container">
+              <textarea id="jsonInput" class="json-input" placeholder="Pega aqui tu recurso FHIR en formato JSON..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" oninput="updateJsonHighlight()" onscroll="syncScroll()"></textarea>
+              <pre id="jsonHighlight" class="json-highlight" aria-hidden="true"></pre>
+            </div>
           </div>
         </div>
 
@@ -1295,7 +1499,7 @@
           </div>
           <div class="live-panel-body">
             <div class="expression-input-container">
-              <input type="text" id="expressionInput" class="expression-input" placeholder="Escribe una expresion FHIRPath..." oninput="evaluateExpression()">
+              <textarea id="expressionInput" class="expression-input" placeholder="Escribe una expresion FHIRPath..." oninput="evaluateExpression(); autoResizeExpression(this);" rows="1" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
             </div>
             <div class="example-expressions">
               <span class="example-expressions-label">Ejemplos:</span>
@@ -1320,6 +1524,30 @@
       <img src="logo-ceg-icon.svg" alt="CEG" class="footer-logo">
       <span class="footer-text">CEG Consultores SpA | Conectaton HL7 Chile 2025</span>
     </footer>
+
+    <!-- Resource Drawer -->
+    <div id="resourceDrawerOverlay" class="drawer-overlay" onclick="toggleResourceDrawer()"></div>
+    <div id="resourceDrawer" class="resource-drawer">
+      <div class="drawer-header">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          Recursos de Ejemplo
+        </h3>
+        <button class="drawer-close" onclick="toggleResourceDrawer()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="drawer-content">
+        <div class="resource-list" id="resourceList">
+          <!-- Resources will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -2026,7 +2254,7 @@
 
       renderStep();
       renderProgressBar();
-      showView('response');
+      showRequestResponse('response');
     }
 
     function updateResponseUI(data) {
@@ -2140,49 +2368,363 @@
     }
 
     // ==================== LIVE TEST - FHIRPATH EVALUATION ====================
-    const samplePatient = {
-      "resourceType": "Patient",
-      "id": "ejemplo-chileno",
-      "identifier": [{
-        "type": {
-          "coding": [{
-            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code": "NNCHL",
-            "display": "RUT Chile"
+    const DEMO_RESOURCES = [
+      {
+        id: 'patient-chileno',
+        title: 'Paciente Chileno',
+        type: 'Patient',
+        icon: 'patient',
+        description: 'Paciente con RUT, nombre, telefonos y direccion',
+        resource: {
+          "resourceType": "Patient",
+          "id": "ejemplo-chileno",
+          "identifier": [{
+            "type": {
+              "coding": [{
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "NNCHL",
+                "display": "RUT Chile"
+              }]
+            },
+            "system": "http://regcivil.cl/run",
+            "value": "12345678-9"
+          }],
+          "active": true,
+          "name": [{
+            "use": "official",
+            "family": "Gonzalez",
+            "given": ["Juan", "Carlos"]
+          }],
+          "telecom": [
+            {"system": "phone", "value": "+56912345678", "use": "mobile"},
+            {"system": "email", "value": "juan@example.com", "use": "home"}
+          ],
+          "gender": "male",
+          "birthDate": "1990-05-15",
+          "address": [{
+            "use": "home",
+            "city": "Santiago",
+            "country": "Chile"
           }]
-        },
-        "system": "http://regcivil.cl/run",
-        "value": "12345678-9"
-      }],
-      "active": true,
-      "name": [{
-        "use": "official",
-        "family": "Gonzalez",
-        "given": ["Juan", "Carlos"]
-      }],
-      "telecom": [
-        {"system": "phone", "value": "+56912345678", "use": "mobile"},
-        {"system": "email", "value": "juan@example.com", "use": "home"}
-      ],
-      "gender": "male",
-      "birthDate": "1990-05-15",
-      "address": [{
-        "use": "home",
-        "city": "Santiago",
-        "country": "Chile"
-      }]
-    };
+        }
+      },
+      {
+        id: 'observation-signos',
+        title: 'Signos Vitales',
+        type: 'Observation',
+        icon: 'observation',
+        description: 'Presion arterial con componentes sistolica/diastolica',
+        resource: {
+          "resourceType": "Observation",
+          "id": "presion-arterial-1",
+          "status": "final",
+          "category": [{
+            "coding": [{
+              "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              "code": "vital-signs",
+              "display": "Vital Signs"
+            }]
+          }],
+          "code": {
+            "coding": [{
+              "system": "http://loinc.org",
+              "code": "85354-9",
+              "display": "Blood pressure panel"
+            }]
+          },
+          "subject": {"reference": "Patient/ejemplo-chileno"},
+          "effectiveDateTime": "2024-01-15T10:30:00-03:00",
+          "component": [
+            {
+              "code": {
+                "coding": [{"system": "http://loinc.org", "code": "8480-6", "display": "Systolic blood pressure"}]
+              },
+              "valueQuantity": {"value": 120, "unit": "mmHg", "system": "http://unitsofmeasure.org", "code": "mm[Hg]"}
+            },
+            {
+              "code": {
+                "coding": [{"system": "http://loinc.org", "code": "8462-4", "display": "Diastolic blood pressure"}]
+              },
+              "valueQuantity": {"value": 80, "unit": "mmHg", "system": "http://unitsofmeasure.org", "code": "mm[Hg]"}
+            }
+          ]
+        }
+      },
+      {
+        id: 'condition-diabetes',
+        title: 'Condicion Clinica',
+        type: 'Condition',
+        icon: 'condition',
+        description: 'Diagnostico de Diabetes Mellitus tipo 2',
+        resource: {
+          "resourceType": "Condition",
+          "id": "diabetes-tipo2",
+          "clinicalStatus": {
+            "coding": [{
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }]
+          },
+          "verificationStatus": {
+            "coding": [{
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }]
+          },
+          "category": [{
+            "coding": [{
+              "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+              "code": "problem-list-item",
+              "display": "Problem List Item"
+            }]
+          }],
+          "severity": {
+            "coding": [{
+              "system": "http://snomed.info/sct",
+              "code": "24484000",
+              "display": "Severe"
+            }]
+          },
+          "code": {
+            "coding": [{
+              "system": "http://snomed.info/sct",
+              "code": "44054006",
+              "display": "Diabetes mellitus type 2"
+            }],
+            "text": "Diabetes Mellitus Tipo 2"
+          },
+          "subject": {"reference": "Patient/ejemplo-chileno"},
+          "onsetDateTime": "2020-03-15",
+          "recordedDate": "2020-03-20"
+        }
+      },
+      {
+        id: 'medication-metformina',
+        title: 'Medicamento',
+        type: 'Medication',
+        icon: 'medication',
+        description: 'Metformina 850mg en tabletas',
+        resource: {
+          "resourceType": "Medication",
+          "id": "metformina-850",
+          "code": {
+            "coding": [{
+              "system": "http://snomed.info/sct",
+              "code": "109081006",
+              "display": "Metformin"
+            }],
+            "text": "Metformina 850mg"
+          },
+          "status": "active",
+          "form": {
+            "coding": [{
+              "system": "http://snomed.info/sct",
+              "code": "385055001",
+              "display": "Tablet"
+            }]
+          },
+          "ingredient": [{
+            "itemCodeableConcept": {
+              "coding": [{
+                "system": "http://snomed.info/sct",
+                "code": "109081006",
+                "display": "Metformin"
+              }]
+            },
+            "strength": {
+              "numerator": {"value": 850, "unit": "mg", "system": "http://unitsofmeasure.org", "code": "mg"},
+              "denominator": {"value": 1, "unit": "tablet", "system": "http://unitsofmeasure.org", "code": "{tablet}"}
+            }
+          }]
+        }
+      },
+      {
+        id: 'practitioner-medico',
+        title: 'Profesional de Salud',
+        type: 'Practitioner',
+        icon: 'practitioner',
+        description: 'Medico con RUT y especialidad',
+        resource: {
+          "resourceType": "Practitioner",
+          "id": "medico-1",
+          "identifier": [{
+            "type": {
+              "coding": [{
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "NNCHL",
+                "display": "RUT Chile"
+              }]
+            },
+            "system": "http://regcivil.cl/run",
+            "value": "15234567-8"
+          }],
+          "active": true,
+          "name": [{
+            "use": "official",
+            "family": "Martinez",
+            "given": ["Maria", "Elena"],
+            "prefix": ["Dra."]
+          }],
+          "telecom": [
+            {"system": "phone", "value": "+56922334455", "use": "work"},
+            {"system": "email", "value": "dra.martinez@hospital.cl", "use": "work"}
+          ],
+          "gender": "female",
+          "qualification": [{
+            "code": {
+              "coding": [{
+                "system": "http://snomed.info/sct",
+                "code": "309343006",
+                "display": "Physician"
+              }]
+            }
+          }]
+        }
+      },
+      {
+        id: 'bundle-busqueda',
+        title: 'Bundle de Busqueda',
+        type: 'Bundle',
+        icon: 'bundle',
+        description: 'Resultado de busqueda con multiples pacientes',
+        resource: {
+          "resourceType": "Bundle",
+          "id": "busqueda-pacientes",
+          "type": "searchset",
+          "total": 2,
+          "link": [{
+            "relation": "self",
+            "url": "http://example.org/fhir/Patient?family=Gonzalez"
+          }],
+          "entry": [
+            {
+              "fullUrl": "http://example.org/fhir/Patient/1",
+              "resource": {
+                "resourceType": "Patient",
+                "id": "1",
+                "name": [{"family": "Gonzalez", "given": ["Juan"]}],
+                "gender": "male",
+                "birthDate": "1990-05-15"
+              }
+            },
+            {
+              "fullUrl": "http://example.org/fhir/Patient/2",
+              "resource": {
+                "resourceType": "Patient",
+                "id": "2",
+                "name": [{"family": "Gonzalez", "given": ["Maria"]}],
+                "gender": "female",
+                "birthDate": "1985-08-22"
+              }
+            }
+          ]
+        }
+      }
+    ];
 
-    function loadSamplePatient() {
+    function loadDemoResource(resourceId) {
+      const resource = DEMO_RESOURCES.find(r => r.id === resourceId);
+      if (resource) {
+        const jsonInput = document.getElementById('jsonInput');
+        jsonInput.value = JSON.stringify(resource.resource, null, 2);
+        updateJsonHighlight();
+        toggleResourceDrawer();
+      }
+    }
+
+    function toggleResourceDrawer() {
+      const drawer = document.getElementById('resourceDrawer');
+      const overlay = document.getElementById('resourceDrawerOverlay');
+      drawer.classList.toggle('open');
+      overlay.classList.toggle('open');
+    }
+
+    function renderResourceList() {
+      const list = document.getElementById('resourceList');
+      if (!list) return;
+
+      const icons = {
+        patient: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+        observation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+        condition: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>',
+        medication: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5L3.5 13.5a4.95 4.95 0 1 1 7-7l7 7a4.95 4.95 0 1 1-7 7z"/><path d="M8.5 8.5l7 7"/></svg>',
+        bundle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+        practitioner: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 8v6"/><path d="M19 11h6"/></svg>'
+      };
+
+      list.innerHTML = DEMO_RESOURCES.map(r => `
+        <div class="resource-item" onclick="loadDemoResource('${r.id}')">
+          <div class="resource-item-header">
+            <div class="resource-item-icon ${r.icon}">${icons[r.icon]}</div>
+            <div>
+              <div class="resource-item-title">${r.title}</div>
+              <div class="resource-item-type">${r.type}</div>
+            </div>
+          </div>
+          <div class="resource-item-description">${r.description}</div>
+        </div>
+      `).join('');
+    }
+
+    // Initialize resource list on page load
+    document.addEventListener('DOMContentLoaded', renderResourceList);
+
+    function updateJsonHighlight() {
       const jsonInput = document.getElementById('jsonInput');
-      jsonInput.value = JSON.stringify(samplePatient, null, 2);
+      const jsonHighlight = document.getElementById('jsonHighlight');
+      const text = jsonInput.value;
+
+      if (!text) {
+        jsonHighlight.innerHTML = '';
+        return;
+      }
+
+      try {
+        // Try to parse and format for better highlighting
+        const parsed = JSON.parse(text);
+        jsonHighlight.innerHTML = syntaxHighlight(JSON.stringify(parsed, null, 2));
+      } catch (e) {
+        // If invalid JSON, just escape HTML and show as-is
+        jsonHighlight.innerHTML = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
       evaluateExpression();
+    }
+
+    function syncScroll() {
+      const jsonInput = document.getElementById('jsonInput');
+      const jsonHighlight = document.getElementById('jsonHighlight');
+      jsonHighlight.scrollTop = jsonInput.scrollTop;
+      jsonHighlight.scrollLeft = jsonInput.scrollLeft;
+    }
+
+    function formatJsonInput() {
+      const jsonInput = document.getElementById('jsonInput');
+      const text = jsonInput.value.trim();
+
+      if (!text) {
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(text);
+        jsonInput.value = JSON.stringify(parsed, null, 2);
+        updateJsonHighlight();
+      } catch (e) {
+        alert('JSON invalido: ' + e.message);
+      }
     }
 
     function setExpression(expr) {
       const expressionInput = document.getElementById('expressionInput');
       expressionInput.value = expr;
+      autoResizeExpression(expressionInput);
       evaluateExpression();
+    }
+
+    function autoResizeExpression(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 128) + 'px';
     }
 
     function evaluateExpression() {
