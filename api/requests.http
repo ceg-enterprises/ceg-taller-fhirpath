@@ -36,13 +36,6 @@ Content-Type: {{contentType}}
     "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
   },
   "identifier": [{
-    "type": {
-      "coding": [{
-        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-        "code": "NNCHL",
-        "display": "RUT Chile"
-      }]
-    },
     "system": "http://regcivil.cl/run",
     "value": "12345678-9"
   }],
@@ -71,13 +64,6 @@ Content-Type: {{contentType}}
     "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
   },
   "identifier": [{
-    "type": {
-      "coding": [{
-        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-        "code": "NNCHL",
-        "display": "RUT Chile"
-      }]
-    },
     "system": "http://regcivil.cl/run",
     "value": "123-4"
   }],
@@ -116,13 +102,6 @@ Content-Type: {{contentType}}
     "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
   },
   "identifier": [{
-    "type": {
-      "coding": [{
-        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-        "code": "NNCHL",
-        "display": "RUT Chile"
-      }]
-    },
     "system": "http://regcivil.cl/run",
     "value": "12345678-9"
   }],
@@ -154,13 +133,6 @@ Content-Type: {{contentType}}
     "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
   },
   "identifier": [{
-    "type": {
-      "coding": [{
-        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-        "code": "NNCHL",
-        "display": "RUT Chile"
-      }]
-    },
     "system": "http://regcivil.cl/run",
     "value": "123-4"
   }],

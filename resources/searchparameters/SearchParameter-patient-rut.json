@@ -13,7 +13,7 @@
   "code": "rut",
   "base": ["Patient"],
   "type": "token",
-  "expression": "Patient.identifier.where(type.coding.code='NNCHL')",
+  "expression": "Patient.identifier.where(system='http://regcivil.cl/run')",
   "xpathUsage": "normal",
   "multipleOr": true,
   "multipleAnd": true

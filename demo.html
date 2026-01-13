@@ -433,16 +433,6 @@
       line-height: 1.7;
     }
 
-    .info-note::before {
-      content: "Funciones FHIRPath:";
-      display: block;
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 0.5rem;
-    }
 
     .info-note strong {
       color: var(--hl7-blue-light);
@@ -761,6 +751,24 @@
     .view-toggle-btn svg {
       width: 11px;
       height: 11px;
+    }
+
+    .get-request-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+    }
+
+    .get-request-label svg {
+      width: 12px;
+      height: 12px;
     }
 
     /* Execute button in action bar */
@@ -1144,6 +1152,9 @@
       resize: none;
       outline: none;
       z-index: 1;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
     .json-input::placeholder {
@@ -1153,6 +1164,37 @@
     .json-input:placeholder-shown + .json-highlight,
     .json-editor-container:has(.json-input:placeholder-shown) .json-highlight {
       color: transparent;
+    }
+
+    /* Line Numbers Gutter */
+    .json-gutter {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3rem;
+      padding: 1rem 0.5rem 1rem 0;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      text-align: right;
+      color: var(--text-muted);
+      user-select: none;
+      overflow: hidden;
+      z-index: 2;
+      box-sizing: border-box;
+    }
+
+    .json-gutter-line {
+      display: block;
+      padding-right: 0.5rem;
+    }
+
+    /* Adjust editor padding for gutter */
+    .json-editor-container.with-gutter .json-input,
+    .json-editor-container.with-gutter .json-highlight {
+      padding-left: 3.5rem;
     }
 
     .expression-input-container {
@@ -1485,10 +1527,42 @@
       resize: none;
       outline: none;
       z-index: 1;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
     .workshop-json-input:focus + .workshop-json-highlight {
       background: rgba(0, 102, 161, 0.03);
+    }
+
+    /* Workshop Line Numbers Gutter */
+    .workshop-json-gutter {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2.5rem;
+      padding: 1rem 0.25rem 1rem 0;
+      background: var(--bg-tertiary);
+      border-right: 1px solid var(--border-color);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      text-align: right;
+      color: var(--text-muted);
+      user-select: none;
+      overflow: hidden;
+      z-index: 2;
+      box-sizing: border-box;
+    }
+
+    .workshop-json-gutter .json-gutter-line {
+      padding-right: 0.35rem;
+    }
+
+    .workshop-json-editor.with-gutter .workshop-json-input,
+    .workshop-json-editor.with-gutter .workshop-json-highlight {
+      padding-left: 3rem;
     }
 
     .workshop-editor-toolbar {
@@ -1702,7 +1776,8 @@
             </div>
           </div>
           <div class="live-panel-body">
-            <div class="json-editor-container">
+            <div class="json-editor-container with-gutter">
+              <div id="jsonGutter" class="json-gutter"></div>
               <textarea id="jsonInput" class="json-input" placeholder="Pega aqui tu recurso FHIR en formato JSON..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" oninput="updateJsonHighlight()" onscroll="syncScroll()"></textarea>
               <pre id="jsonHighlight" class="json-highlight" aria-hidden="true"></pre>
             </div>
@@ -1730,7 +1805,7 @@
               <button class="example-btn" onclick="setExpression(&quot;telecom.where(system='phone')&quot;)">telecom.where()</button>
               <button class="example-btn" onclick="setExpression('birthDate.exists()')">birthDate.exists()</button>
               <button class="example-btn" onclick="setExpression(&quot;name.family.startsWith('G')&quot;)">startsWith()</button>
-              <button class="example-btn" onclick="setExpression(&quot;identifier.where(type.coding.code='NNCHL').value&quot;)">RUT</button>
+              <button class="example-btn" onclick="setExpression(&quot;identifier.where(system='http://regcivil.cl/run').value&quot;)">RUT</button>
             </div>
             <div id="resultPanel" class="result-panel">
               <div class="result-empty">
@@ -1791,47 +1866,47 @@
         endpoint: '/StructureDefinition',
         description: 'Cargamos un StructureDefinition con 3 invariantes FHIRPath. Con <code>severity: warning</code> solo generan advertencias.',
         highlights: [
-          { type: 'info', text: '<strong>cl-rut-formato:</strong> <code>identifier.where(type.coding.code=\'NNCHL\').all(value.matches(\'^[0-9]+-[0-9Kk]$\'))</code>' },
-          { type: 'note', text: '<strong>where()</strong> filtra identificadores con codigo NNCHL. <strong>all()</strong> verifica que TODOS cumplan (si no hay elementos, retorna true). <strong>matches()</strong> valida con expresion regular.' },
-          { type: 'info', text: '<strong>cl-contacto-emergencia:</strong> <code>contact.exists() or birthDate.empty()</code>' },
-          { type: 'note', text: '<strong>exists()</strong> retorna true si hay al menos un elemento. <strong>empty()</strong> retorna true si la coleccion esta vacia.' },
+          { type: 'info', text: '<strong>cl-rut-formato:</strong> <code>identifier.where(system=\'http://regcivil.cl/run\').all(value.matches(\'^[0-9]+-[0-9Kk]$\'))</code>' },
+          { type: 'note', text: '<strong>where()</strong> filtra identificadores por system. <strong>all()</strong> verifica que TODOS cumplan. <strong>matches()</strong> valida con regex.' },
+          { type: 'info', text: '<strong>cl-contacto-emergencia:</strong> <code>contact.exists()</code>' },
+          { type: 'note', text: '<strong>exists()</strong> retorna true si hay al menos un elemento en la coleccion.' },
           { type: 'info', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(system=\'phone\' and use=\'mobile\').all(value.startsWith(\'+56\'))</code>' },
-          { type: 'note', text: '<strong>startsWith()</strong> verifica que el string comience con el prefijo indicado (+56 para Chile).' }
+          { type: 'note', text: '<strong>startsWith()</strong> verifica que el string comience con el prefijo indicado (+56).' }
         ],
         resource: 'structureDefinitionV1'
       },
       {
         id: 'validateJuan1',
         number: 2,
-        title: 'Validar Juan Gonzalez',
+        title: 'Validar Juan Gonzalez (v1)',
         category: 'invariantes',
         categoryLabel: 'Invariantes',
         method: 'POST',
         endpoint: '/Patient/$validate',
-        description: 'Validamos a Juan contra el perfil. Analicemos como evalua cada expresion FHIRPath:',
+        description: 'Validamos a Juan contra el perfil v1. Analicemos como evalua cada expresion FHIRPath:',
         highlights: [
           { type: 'success', text: '<strong>cl-rut-formato:</strong> <code>\'12345678-9\'.matches(\'^[0-9]+-[0-9Kk]$\')</code> → <strong>true</strong>' },
           { type: 'success', text: '<strong>cl-telefono-movil:</strong> <code>\'+56912345678\'.startsWith(\'+56\')</code> → <strong>true</strong>' },
-          { type: 'success', text: '<strong>cl-contacto-emergencia:</strong> Edad 34 < 65, no aplica la regla' }
+          { type: 'warning', text: '<strong>cl-contacto-emergencia:</strong> <code>contact.exists()</code> → <strong>false</strong> (no tiene contacto)' }
         ],
-        resource: 'patientJuan'
+        resource: 'patientJuanV1'
       },
       {
         id: 'validateMaria1',
         number: 3,
-        title: 'Validar Maria Silva',
+        title: 'Validar Maria Silva (v1)',
         category: 'invariantes',
         categoryLabel: 'Invariantes',
         method: 'POST',
         endpoint: '/Patient/$validate',
-        description: 'Maria tiene problemas con los 3 constraints. Veamos como fallan las expresiones:',
+        description: 'Maria tiene problemas con los 3 constraints del perfil v1. Veamos como fallan:',
         highlights: [
           { type: 'warning', text: '<strong>cl-rut-formato:</strong> <code>\'123-4\'.matches(\'^[0-9]+-[0-9Kk]$\')</code> → true (formato OK, pero muy corto)' },
           { type: 'warning', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).empty()</code> → true (no tiene movil)' },
-          { type: 'warning', text: '<strong>cl-contacto-emergencia:</strong> <code>contact.exists()</code> → false, edad 69 > 65 → <strong>FALLA</strong>' },
+          { type: 'warning', text: '<strong>cl-contacto-emergencia:</strong> <code>contact.exists()</code> → <strong>false</strong> (no tiene contacto)' },
           { type: 'info', text: 'Como son <code>severity: warning</code>, la validacion pasa con advertencias' }
         ],
-        resource: 'patientMaria'
+        resource: 'patientMariaV1'
       },
       {
         id: 'loadProfileV2',
@@ -1839,9 +1914,9 @@
         title: 'Cargar Perfil v2 (Estricto)',
         category: 'invariantes',
         categoryLabel: 'Cambio de Perfil',
-        method: 'PUT',
-        endpoint: '/StructureDefinition/PacienteChilenoDemo',
-        description: 'Actualizamos el perfil con <code>severity: error</code> y expresiones mas estrictas:',
+        method: 'POST',
+        endpoint: '/StructureDefinition',
+        description: 'Cargamos el perfil v2 con <code>severity: error</code> y expresiones mas estrictas:',
         highlights: [
           { type: 'warning', text: '<strong>cl-rut-formato:</strong> <code>identifier.where(...).all(value.matches(\'^[0-9]{7,8}-[0-9Kk]$\'))</code>' },
           { type: 'note', text: 'Ahora exige 7-8 digitos con <code>{7,8}</code> en la regex. RUT "123-4" ya no pasa.' },
@@ -1855,35 +1930,35 @@
       {
         id: 'validateJuan2',
         number: 5,
-        title: 'Validar Juan Gonzalez',
+        title: 'Validar Juan Gonzalez (v2)',
         category: 'invariantes',
         categoryLabel: 'Con Perfil v2',
         method: 'POST',
         endpoint: '/Patient/$validate',
-        description: 'Juan sigue pasando con el perfil estricto porque cumple todas las expresiones:',
+        description: 'Juan sigue pasando con el perfil v2 estricto porque cumple todas las expresiones:',
         highlights: [
           { type: 'success', text: '<strong>cl-rut-formato:</strong> <code>\'12345678-9\'.matches(\'^[0-9]{7,8}-[0-9Kk]$\')</code> → <strong>true</strong> (8 digitos)' },
           { type: 'success', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).exists()</code> → <strong>true</strong> (tiene movil)' },
           { type: 'success', text: '<strong>cl-contacto-emergencia:</strong> Edad 34 < 65 → no requiere contacto' }
         ],
-        resource: 'patientJuan'
+        resource: 'patientJuanV2'
       },
       {
         id: 'validateMaria2',
         number: 6,
-        title: 'Validar Maria Silva (FALLA)',
+        title: 'Validar Maria Silva (v2 - FALLA)',
         category: 'invariantes',
         categoryLabel: 'Con Perfil v2',
         method: 'POST',
         endpoint: '/Patient/$validate',
-        description: 'El mismo recurso de Maria ahora FALLA. Veamos por que cada expresion retorna false:',
+        description: 'Maria FALLA la validacion con el perfil v2. Veamos por que:',
         highlights: [
           { type: 'warning', text: '<strong>cl-rut-formato:</strong> <code>\'123-4\'.matches(\'^[0-9]{7,8}-...$\')</code> → <strong>false</strong> (solo 3 digitos)' },
           { type: 'warning', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).exists()</code> → <strong>false</strong> (no tiene movil)' },
           { type: 'warning', text: '<strong>cl-contacto-emergencia:</strong> Edad 69 >= 65 y <code>contact.exists()</code> → <strong>false</strong>' },
           { type: 'info', text: 'Con <code>severity: error</code>, cualquier false bloquea la validacion' }
         ],
-        resource: 'patientMaria'
+        resource: 'patientMariaV2'
       },
       {
         id: 'createPatients',
@@ -1928,8 +2003,8 @@
         endpoint: '/SearchParameter',
         description: 'Registramos un SearchParameter que usa FHIRPath para indexar el RUT:',
         highlights: [
-          { type: 'success', text: '<strong>Expression:</strong> <code>Patient.identifier.where(type.coding.code=\'NNCHL\')</code>' },
-          { type: 'note', text: '<strong>Patient.identifier</strong> navega a la coleccion de identificadores. <strong>where()</strong> filtra solo los que tengan codigo NNCHL (RUT chileno). El servidor indexa el <strong>value</strong> del identifier filtrado.' }
+          { type: 'success', text: '<strong>Expression:</strong> <code>Patient.identifier.where(system=\'http://regcivil.cl/run\').value</code>' },
+          { type: 'note', text: '<strong>Patient.identifier</strong> navega a la coleccion de identificadores. <strong>where()</strong> filtra solo los que tengan system RUT chileno. <strong>.value</strong> extrae el valor para indexar.' }
         ],
         resource: 'searchParameter'
       },
@@ -1945,7 +2020,7 @@
         highlights: [
           { type: 'success', text: '<strong>Proceso:</strong> GET /Patient?rut=12345678-9' },
           { type: 'info', text: '1. El servidor busca en su indice de <code>rut</code>' },
-          { type: 'info', text: '2. Encuentra pacientes donde <code>identifier.where(type.coding.code=\'NNCHL\').value</code> = "12345678-9"' },
+          { type: 'info', text: '2. Encuentra pacientes donde <code>identifier.where(system=\'http://regcivil.cl/run\').value</code> = "12345678-9"' },
           { type: 'success', text: '3. Retorna un Bundle con los pacientes que coinciden' }
         ],
         resource: null
@@ -1956,7 +2031,6 @@
     const RESOURCES = {
       structureDefinitionV1: {
         "resourceType": "StructureDefinition",
-        "id": "PacienteChilenoDemo",
         "url": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo",
         "version": "1.0.0",
         "name": "PacienteChilenoDemo",
@@ -1982,14 +2056,14 @@
                   "key": "cl-rut-formato",
                   "severity": "warning",
                   "human": "El RUT debe tener formato valido (digitos-digito verificador)",
-                  "expression": "identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]+-[0-9Kk]$'))",
+                  "expression": "identifier.where(system='http://regcivil.cl/run').all(value.matches('^[0-9]+-[0-9Kk]$'))",
                   "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
                 },
                 {
                   "key": "cl-contacto-emergencia",
                   "severity": "warning",
                   "human": "Se recomienda tener un contacto de emergencia",
-                  "expression": "contact.exists() or birthDate.empty()",
+                  "expression": "contact.exists()",
                   "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
                 },
                 {
@@ -2018,7 +2092,6 @@
       },
       structureDefinitionV2: {
         "resourceType": "StructureDefinition",
-        "id": "PacienteChilenoDemo",
         "url": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo",
         "version": "2.0.0",
         "name": "PacienteChilenoDemo",
@@ -2044,7 +2117,7 @@
                   "key": "cl-rut-formato",
                   "severity": "error",
                   "human": "El RUT DEBE tener formato valido con 7-8 digitos (ej: 12345678-9)",
-                  "expression": "identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]{7,8}-[0-9Kk]$'))",
+                  "expression": "identifier.where(system='http://regcivil.cl/run').all(value.matches('^[0-9]{7,8}-[0-9Kk]$'))",
                   "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
                 },
                 {
@@ -2084,19 +2157,13 @@
           ]
         }
       },
-      patientJuan: {
+      // Pacientes para validación con perfil v1
+      patientJuanV1: {
         "resourceType": "Patient",
         "meta": {
-          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo|1.0.0"]
         },
         "identifier": [{
-          "type": {
-            "coding": [{
-              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-              "code": "NNCHL",
-              "display": "RUT Chile"
-            }]
-          },
           "system": "http://regcivil.cl/run",
           "value": "12345678-9"
         }],
@@ -2113,19 +2180,56 @@
         "gender": "male",
         "birthDate": "1990-05-15"
       },
-      patientMaria: {
+      patientMariaV1: {
         "resourceType": "Patient",
         "meta": {
-          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo|1.0.0"]
         },
         "identifier": [{
-          "type": {
-            "coding": [{
-              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-              "code": "NNCHL",
-              "display": "RUT Chile"
-            }]
-          },
+          "system": "http://regcivil.cl/run",
+          "value": "123-4"
+        }],
+        "active": true,
+        "name": [{
+          "use": "official",
+          "family": "Silva",
+          "given": ["Maria", "Elena"]
+        }],
+        "telecom": [
+          {"system": "email", "value": "maria.silva@example.com", "use": "home"}
+        ],
+        "gender": "female",
+        "birthDate": "1955-03-20"
+      },
+      // Pacientes para validación con perfil v2
+      patientJuanV2: {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo|2.0.0"]
+        },
+        "identifier": [{
+          "system": "http://regcivil.cl/run",
+          "value": "12345678-9"
+        }],
+        "active": true,
+        "name": [{
+          "use": "official",
+          "family": "Gonzalez",
+          "given": ["Juan", "Carlos"]
+        }],
+        "telecom": [
+          {"system": "phone", "value": "+56912345678", "use": "mobile"},
+          {"system": "email", "value": "juan.gonzalez@example.com", "use": "home"}
+        ],
+        "gender": "male",
+        "birthDate": "1990-05-15"
+      },
+      patientMariaV2: {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo|2.0.0"]
+        },
+        "identifier": [{
           "system": "http://regcivil.cl/run",
           "value": "123-4"
         }],
@@ -2144,16 +2248,9 @@
       patientPedro: {
         "resourceType": "Patient",
         "meta": {
-          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo|1.0.0"]
         },
         "identifier": [{
-          "type": {
-            "coding": [{
-              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-              "code": "NNCHL",
-              "display": "RUT Chile"
-            }]
-          },
           "system": "http://regcivil.cl/run",
           "value": "98765432-1"
         }],
@@ -2181,7 +2278,6 @@
         "url": "https://example.org/fhir/SearchParameter/patient-rut",
         "version": "1.0.0",
         "name": "PatientRUT",
-        "title": "Busqueda de Paciente por RUT",
         "status": "active",
         "experimental": true,
         "date": "2025-01-12",
@@ -2190,7 +2286,7 @@
         "code": "rut",
         "base": ["Patient"],
         "type": "token",
-        "expression": "Patient.identifier.where(type.coding.code='NNCHL')"
+        "expression": "Patient.identifier.where(system='http://regcivil.cl/run').value"
       }
     };
 
@@ -2217,10 +2313,25 @@
       });
     }
 
+    // ==================== JSON EDITOR LINE NUMBERS ====================
+    function generateLineNumbers(text, gutterId) {
+      const gutter = document.getElementById(gutterId);
+      if (!gutter) return;
+
+      const lines = text.split('\n');
+      let html = '';
+
+      for (let i = 1; i <= lines.length; i++) {
+        html += `<span class="json-gutter-line">${i}</span>`;
+      }
+
+      gutter.innerHTML = html;
+    }
+
     function getResourceForStep(step) {
       if (!step.resource) return null;
       if (step.resource === 'patients') {
-        return [RESOURCES.patientJuan, RESOURCES.patientMaria, RESOURCES.patientPedro];
+        return [RESOURCES.patientJuanV1, RESOURCES.patientMariaV1, RESOURCES.patientPedro];
       }
       return RESOURCES[step.resource];
     }
@@ -2259,23 +2370,33 @@
       editedResources[step.id] = text;
 
       try {
-        // Try to parse and highlight valid JSON
-        const parsed = JSON.parse(text);
-        highlight.innerHTML = syntaxHighlight(parsed);
+        // Validate JSON but highlight the raw text to preserve formatting
+        JSON.parse(text);
+        highlight.innerHTML = syntaxHighlight(text);
       } catch (e) {
         // If invalid JSON, show as plain text with error indication
         const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         highlight.innerHTML = '<span style="color: var(--error-red);">' + escaped + '</span>';
       }
+
+      // Update line numbers
+      generateLineNumbers(text, 'workshopJsonGutter');
+
+      // Sync scroll after content update
+      requestAnimationFrame(() => syncWorkshopScroll());
     }
 
     function syncWorkshopScroll() {
       const input = document.getElementById('workshopJsonInput');
       const highlight = document.getElementById('workshopJsonHighlight');
+      const gutter = document.getElementById('workshopJsonGutter');
       if (!input || !highlight) return;
 
       highlight.scrollTop = input.scrollTop;
       highlight.scrollLeft = input.scrollLeft;
+      if (gutter) {
+        gutter.scrollTop = input.scrollTop;
+      }
     }
 
     function formatWorkshopJson() {
@@ -2386,8 +2507,8 @@
               </div>
             </div>
             <div class="response-body" id="responseBody">
-              ${resource ? `
-                <div class="action-bar">
+              <div class="action-bar">
+                ${resource ? `
                   <div class="view-toggle">
                     <button class="view-toggle-btn active" onclick="showRequestResponse('request')">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2403,13 +2524,24 @@
                       Response
                     </button>
                   </div>
-                  <button class="execute-btn-inline ${executeButtonClass}" onclick="executeCurrentStep()" ${state === 'loading' ? 'disabled' : ''}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      ${executeButtonIcon}
-                    </svg>
-                    ${executeButtonText}
-                  </button>
-                </div>
+                ` : `
+                  <div class="view-toggle">
+                    <span class="get-request-label">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                      </svg>
+                      GET Request (sin body)
+                    </span>
+                  </div>
+                `}
+                <button class="execute-btn-inline ${executeButtonClass}" onclick="executeCurrentStep()" ${state === 'loading' ? 'disabled' : ''}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    ${executeButtonIcon}
+                  </svg>
+                  ${executeButtonText}
+                </button>
+              </div>
+              ${resource ? `
                 <div id="workshopEditorContainer">
                   <div class="workshop-editor-toolbar">
                     <div class="workshop-editor-label">
@@ -2438,20 +2570,21 @@
                       </button>
                     </div>
                   </div>
-                  <div class="workshop-json-editor">
+                  <div class="workshop-json-editor with-gutter">
+                    <div id="workshopJsonGutter" class="workshop-json-gutter"></div>
                     <textarea id="workshopJsonInput" class="workshop-json-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" oninput="updateWorkshopJsonHighlight()" onscroll="syncWorkshopScroll()">${getEditedJsonText(step, resource)}</textarea>
                     <pre id="workshopJsonHighlight" class="workshop-json-highlight" aria-hidden="true"></pre>
                   </div>
                 </div>
-                <pre id="jsonContent" style="display: none;"></pre>
               ` : `
                 <div class="response-placeholder">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                   </svg>
-                  <span>Esta operacion no envia un body</span>
+                  <span>Ejecuta para ver la respuesta del servidor</span>
                 </div>
               `}
+              <pre id="jsonContent" style="display: none;"></pre>
             </div>
           </div>
         </div>
@@ -2482,23 +2615,27 @@
       currentRequestView = view;
       const buttons = document.querySelectorAll('.view-toggle-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
-      buttons[view === 'request' ? 0 : 1].classList.add('active');
+      const targetBtn = buttons[view === 'request' ? 0 : 1];
+      if (targetBtn) targetBtn.classList.add('active');
 
       const jsonContent = document.getElementById('jsonContent');
       const editorContainer = document.getElementById('workshopEditorContainer');
       const responseBody = document.getElementById('responseBody');
+      const responsePlaceholder = document.querySelector('.response-placeholder');
 
       if (view === 'request') {
         // Show the editable workshop editor, hide the static jsonContent
         if (editorContainer) editorContainer.style.display = 'flex';
         if (jsonContent) jsonContent.style.display = 'none';
+        if (responsePlaceholder) responsePlaceholder.style.display = 'flex';
         if (responseBody) {
           responseBody.classList.add('editor-mode');
           responseBody.classList.remove('response-mode');
         }
       } else {
-        // Show response in jsonContent, hide the editor
+        // Show response in jsonContent, hide the editor and placeholder
         if (editorContainer) editorContainer.style.display = 'none';
+        if (responsePlaceholder) responsePlaceholder.style.display = 'none';
         if (jsonContent) {
           jsonContent.style.display = 'block';
           if (currentViewData.response) {
@@ -2596,9 +2733,8 @@
         } else {
           // Use the edited resource from the workshop editor
           const resource = getEditedResource();
-          const method = step.id === 'loadProfileV2' ? 'PUT' : 'POST';
           response = await fetch(`${FHIR_BASE}${step.endpoint.split(' ')[0]}`, {
-            method: method,
+            method: 'POST',
             headers: {
               'Content-Type': 'application/fhir+json',
               'Accept': 'application/fhir+json'
@@ -2705,9 +2841,17 @@
       const workshopView = document.getElementById('workshopView');
       if (!workshopView.classList.contains('active')) return;
 
-      if (e.key === 'ArrowLeft') prevStep();
-      else if (e.key === 'ArrowRight') nextStep();
-      else if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) executeCurrentStep();
+      // Don't intercept keyboard events when typing in inputs or textareas
+      const activeElement = document.activeElement;
+      const isTyping = activeElement && (
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.tagName === 'INPUT' ||
+        activeElement.isContentEditable
+      );
+
+      if (e.key === 'ArrowLeft' && !isTyping) prevStep();
+      else if (e.key === 'ArrowRight' && !isTyping) nextStep();
+      else if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && !isTyping) executeCurrentStep();
     });
 
     // ==================== VIEW MANAGEMENT ====================
@@ -2750,13 +2894,6 @@
           "resourceType": "Patient",
           "id": "ejemplo-chileno",
           "identifier": [{
-            "type": {
-              "coding": [{
-                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-                "code": "NNCHL",
-                "display": "RUT Chile"
-              }]
-            },
             "system": "http://regcivil.cl/run",
             "value": "12345678-9"
           }],
@@ -2919,13 +3056,6 @@
           "resourceType": "Practitioner",
           "id": "medico-1",
           "identifier": [{
-            "type": {
-              "coding": [{
-                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-                "code": "NNCHL",
-                "display": "RUT Chile"
-              }]
-            },
             "system": "http://regcivil.cl/run",
             "value": "15234567-8"
           }],
@@ -3043,21 +3173,29 @@
     function updateJsonHighlight() {
       const jsonInput = document.getElementById('jsonInput');
       const jsonHighlight = document.getElementById('jsonHighlight');
+      const jsonGutter = document.getElementById('jsonGutter');
       const text = jsonInput.value;
 
       if (!text) {
         jsonHighlight.innerHTML = '';
+        if (jsonGutter) jsonGutter.innerHTML = '';
         return;
       }
 
       try {
-        // Try to parse and format for better highlighting
-        const parsed = JSON.parse(text);
-        jsonHighlight.innerHTML = syntaxHighlight(JSON.stringify(parsed, null, 2));
+        // Validate JSON but highlight the raw text to preserve formatting
+        JSON.parse(text);
+        jsonHighlight.innerHTML = syntaxHighlight(text);
       } catch (e) {
         // If invalid JSON, just escape HTML and show as-is
         jsonHighlight.innerHTML = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       }
+
+      // Update line numbers
+      generateLineNumbers(text, 'jsonGutter');
+
+      // Sync scroll after content update
+      requestAnimationFrame(() => syncScroll());
 
       evaluateExpression();
     }
@@ -3065,8 +3203,12 @@
     function syncScroll() {
       const jsonInput = document.getElementById('jsonInput');
       const jsonHighlight = document.getElementById('jsonHighlight');
+      const jsonGutter = document.getElementById('jsonGutter');
       jsonHighlight.scrollTop = jsonInput.scrollTop;
       jsonHighlight.scrollLeft = jsonInput.scrollLeft;
+      if (jsonGutter) {
+        jsonGutter.scrollTop = jsonInput.scrollTop;
+      }
     }
 
     function formatJsonInput() {

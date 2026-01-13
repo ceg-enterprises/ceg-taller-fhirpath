@@ -111,7 +111,7 @@ Un **invariante** es una regla de validacion definida en un StructureDefinition.
   "key": "cl-rut-formato",
   "severity": "warning",  // o "error"
   "human": "El RUT debe tener formato valido",
-  "expression": "identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]+-[0-9Kk]$'))"
+  "expression": "identifier.where(system='http://regcivil.cl/run').all(value.matches('^[0-9]+-[0-9Kk]$'))"
 }
 ```
 
@@ -266,7 +266,7 @@ Un **SearchParameter** le ensena al servidor FHIR como buscar recursos usando un
   "code": "rut",
   "base": ["Patient"],
   "type": "token",
-  "expression": "Patient.identifier.where(type.coding.code='NNCHL')"
+  "expression": "Patient.identifier.where(system='http://regcivil.cl/run')"
 }
 ```
 
@@ -314,12 +314,12 @@ Un **SearchParameter** le ensena al servidor FHIR como buscar recursos usando un
 
 **Expresion FHIRPath:**
 ```fhirpath
-Patient.identifier.where(type.coding.code='NNCHL')
+Patient.identifier.where(system='http://regcivil.cl/run')
 ```
 
 **Explicacion:**
 1. `Patient.identifier` - Accede a todos los identificadores
-2. `.where(type.coding.code='NNCHL')` - Filtra solo los que tienen codigo NNCHL (RUT chileno)
+2. `.where(system='http://regcivil.cl/run')` - Filtra solo los que tienen system de RUT chileno
 
 **Metodo:** `POST /SearchParameter`
 
