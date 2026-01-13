@@ -1,0 +1,90 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "PacienteChilenoDemo",
+  "url": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo",
+  "version": "2.0.0",
+  "name": "PacienteChilenoDemo",
+  "title": "Paciente Chileno Demo - v2 (Estricto)",
+  "status": "active",
+  "experimental": true,
+  "date": "2025-01-12",
+  "publisher": "Taller FHIRPath - Conectaton HL7 Chile",
+  "description": "Perfil de demostración para el taller de FHIRPath. Version 2 con constraints ESTRICTOS que hacen fallar recursos que antes pasaban.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient",
+        "path": "Patient",
+        "constraint": [
+          {
+            "key": "cl-rut-formato",
+            "severity": "error",
+            "human": "El RUT DEBE tener formato valido con 7-8 digitos (ej: 12345678-9)",
+            "expression": "identifier.where(type.coding.code='NNCHL').empty() or identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]{7,8}-[0-9Kk]$'))",
+            "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+          },
+          {
+            "key": "cl-contacto-emergencia",
+            "severity": "error",
+            "human": "Pacientes mayores de 65 anios DEBEN tener un contacto de emergencia",
+            "expression": "birthDate.empty() or (today().toString().substring(0,4).toInteger() - birthDate.toString().substring(0,4).toInteger() < 65) or contact.exists()",
+            "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+          },
+          {
+            "key": "cl-telefono-movil",
+            "severity": "error",
+            "human": "El paciente DEBE tener un telefono movil con formato chileno (+56)",
+            "expression": "telecom.where(system='phone' and use='mobile').exists() and telecom.where(system='phone' and use='mobile').all(value.startsWith('+56'))",
+            "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+          }
+        ]
+      },
+      {
+        "id": "Patient.identifier",
+        "path": "Patient.identifier",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier.type",
+        "path": "Patient.identifier.type",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier.value",
+        "path": "Patient.identifier.value",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name",
+        "path": "Patient.name",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.birthDate",
+        "path": "Patient.birthDate",
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.telecom",
+        "path": "Patient.telecom",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.contact",
+        "path": "Patient.contact",
+        "mustSupport": true
+      }
+    ]
+  }
+}

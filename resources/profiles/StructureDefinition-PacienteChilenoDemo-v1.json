@@ -1,0 +1,84 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "PacienteChilenoDemo",
+  "url": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo",
+  "version": "1.0.0",
+  "name": "PacienteChilenoDemo",
+  "title": "Paciente Chileno Demo - v1 (Permisivo)",
+  "status": "active",
+  "experimental": true,
+  "date": "2025-01-12",
+  "publisher": "Taller FHIRPath - Conectaton HL7 Chile",
+  "description": "Perfil de demostración para el taller de FHIRPath. Version 1 con constraints permisivos.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient",
+        "path": "Patient",
+        "constraint": [
+          {
+            "key": "cl-rut-formato",
+            "severity": "warning",
+            "human": "El RUT debe tener formato valido (digitos-digito verificador)",
+            "expression": "identifier.where(type.coding.code='NNCHL').empty() or identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]+-[0-9Kk]$'))",
+            "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+          },
+          {
+            "key": "cl-contacto-emergencia",
+            "severity": "warning",
+            "human": "Se recomienda tener un contacto de emergencia",
+            "expression": "contact.exists() or birthDate.empty()",
+            "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+          },
+          {
+            "key": "cl-telefono-movil",
+            "severity": "warning",
+            "human": "Si existe telefono movil, debe tener formato chileno (+56)",
+            "expression": "telecom.where(system='phone' and use='mobile').empty() or telecom.where(system='phone' and use='mobile').all(value.startsWith('+56'))",
+            "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+          }
+        ]
+      },
+      {
+        "id": "Patient.identifier",
+        "path": "Patient.identifier",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier.type",
+        "path": "Patient.identifier.type",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier.value",
+        "path": "Patient.identifier.value",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name",
+        "path": "Patient.name",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.birthDate",
+        "path": "Patient.birthDate",
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.telecom",
+        "path": "Patient.telecom",
+        "mustSupport": true
+      }
+    ]
+  }
+}

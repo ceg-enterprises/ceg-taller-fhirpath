@@ -1,0 +1,41 @@
+services:
+  hapi-fhir:
+    image: hapiproject/hapi:latest
+    container_name: hapi-fhir-taller
+    ports:
+      - "8081:8080"
+    environment:
+      # Habilitar CORS para demo.html
+      - hapi.fhir.cors.allow_Credentials=true
+      - hapi.fhir.cors.allowed_origin=*
+
+      # Configuracion de validacion
+      - hapi.fhir.validation.requests_enabled=true
+      - hapi.fhir.validation.responses_enabled=false
+
+      # DESHABILITAR validacion de terminologia para evitar errores
+      - hapi.fhir.validation_enabled_for_codes_on_create=false
+      - hapi.fhir.validation_enabled_for_codes_on_update=false
+
+      # Configuracion general
+      - hapi.fhir.fhir_version=R4
+      - hapi.fhir.allow_external_references=true
+      - hapi.fhir.allow_multiple_delete=true
+      - hapi.fhir.reuse_cached_search_results_millis=-1
+      - hapi.fhir.allow_contains_searches=true
+      - hapi.fhir.allow_override_default_search_params=true
+
+      # Deshabilitar servidor de terminologia remoto
+      - hapi.fhir.defer_indexing_for_codesystems_of_size=0
+    volumes:
+      - hapi-data:/data/hapi
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/fhir/metadata"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  hapi-data:
+    driver: local

@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taller FHIRPath - Conectaton HL7 Chile 2025</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Dark theme (default) */
+    :root {
+      --bg-primary: #0a0e14;
+      --bg-secondary: #0d1219;
+      --bg-tertiary: #131a24;
+      --bg-card: #151d28;
+      --border-color: #1e2a3a;
+      --border-highlight: #2a3a4d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #5c6670;
+      --hl7-blue: #0066a1;
+      --hl7-blue-light: #0080c9;
+      --success-green: #00a86b;
+      --success-green-light: #00c97f;
+      --accent-orange: #ff6b35;
+      --accent-orange-light: #ff8555;
+      --error-red: #f85149;
+      --chile-red: #d52b1e;
+      --json-key: #79c0ff;
+      --json-string: #a5d6ff;
+      --json-number: #00c97f;
+      --json-boolean: #ff7b72;
+      --json-null: #8b949e;
+    }
+
+    /* Light theme */
+    [data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f6f8fa;
+      --bg-tertiary: #eef1f4;
+      --bg-card: #ffffff;
+      --border-color: #d1d9e0;
+      --border-highlight: #b8c1cc;
+      --text-primary: #1a1a2e;
+      --text-secondary: #5a6a7a;
+      --text-muted: #8b949e;
+      --hl7-blue: #0066a1;
+      --hl7-blue-light: #0080c9;
+      --success-green: #00875a;
+      --success-green-light: #00a86b;
+      --accent-orange: #e85a2c;
+      --accent-orange-light: #ff6b35;
+      --error-red: #d32f2f;
+      --chile-red: #d52b1e;
+      --json-key: #0550ae;
+      --json-string: #0a3069;
+      --json-number: #00875a;
+      --json-boolean: #cf222e;
+      --json-null: #8b949e;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Background grid */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        linear-gradient(rgba(0, 102, 161, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 102, 161, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 0.75rem 1.5rem;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-ceg {
+      height: 40px;
+      width: auto;
+    }
+
+    .header-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .server-status .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+
+    .server-status.connected .dot {
+      background: var(--success-green);
+      box-shadow: 0 0 8px var(--success-green);
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .theme-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .theme-toggle .sun-icon { display: none; }
+    .theme-toggle .moon-icon { display: block; }
+    [data-theme="light"] .theme-toggle .sun-icon { display: block; }
+    [data-theme="light"] .theme-toggle .moon-icon { display: none; }
+
+    /* Progress bar */
+    .progress-container {
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-title {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .progress-counter {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      display: flex;
+      gap: 4px;
+      height: 6px;
+    }
+
+    .progress-segment {
+      flex: 1;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .progress-segment:hover {
+      background: var(--border-highlight);
+    }
+
+    .progress-segment.active {
+      background: var(--hl7-blue);
+    }
+
+    .progress-segment.completed {
+      background: var(--success-green);
+    }
+
+    .progress-segment.error {
+      background: var(--error-red);
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    /* Step card */
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .step-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .step-number-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--hl7-blue) 0%, #004d7a 100%);
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .step-title-group h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.1rem;
+    }
+
+    .step-subtitle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .step-subtitle .method {
+      color: var(--json-key);
+      font-weight: 600;
+    }
+
+    .step-category {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      background: rgba(0, 102, 161, 0.15);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--hl7-blue-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .step-category.searchparam {
+      background: rgba(0, 168, 107, 0.15);
+      color: var(--success-green-light);
+    }
+
+    /* Step content */
+    .step-content {
+      display: grid;
+      grid-template-columns: 40% 60%;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    @media (max-width: 1000px) {
+      .step-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+    }
+
+    /* Info panel */
+    .info-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+    }
+
+    .info-section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      flex-shrink: 0;
+    }
+
+    .info-section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-section p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .info-highlight {
+      background: rgba(0, 102, 161, 0.1);
+      border-left: 2px solid var(--hl7-blue);
+      padding: 0.4rem 0.75rem;
+      border-radius: 0 4px 4px 0;
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
+    }
+
+    .info-highlight.warning {
+      background: rgba(255, 107, 53, 0.1);
+      border-left-color: var(--accent-orange);
+    }
+
+    .info-highlight.success {
+      background: rgba(0, 168, 107, 0.1);
+      border-left-color: var(--success-green);
+    }
+
+    .info-highlight code {
+      background: var(--bg-primary);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--json-key);
+    }
+
+    /* Execute button */
+    .execute-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      width: 100%;
+      padding: 0.6rem 1rem;
+      background: linear-gradient(135deg, var(--hl7-blue) 0%, #004d7a 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      margin-top: auto;
+    }
+
+    .execute-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 102, 161, 0.3);
+    }
+
+    .execute-btn:active {
+      transform: translateY(0);
+    }
+
+    .execute-btn.loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .execute-btn.success {
+      background: linear-gradient(135deg, var(--success-green) 0%, #007a4d 100%);
+    }
+
+    .execute-btn.error {
+      background: linear-gradient(135deg, var(--error-red) 0%, #c62828 100%);
+    }
+
+    .execute-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .execute-btn.loading svg {
+      animation: spin 1s linear infinite;
+    }
+
+    /* Response panel */
+    .response-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .response-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.4rem 0.75rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .response-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toolbar-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .toolbar-dot:nth-child(1) { background: #ff5f57; }
+    .toolbar-dot:nth-child(2) { background: #febc2e; }
+    .toolbar-dot:nth-child(3) { background: #28c840; }
+
+    .response-endpoint {
+      margin-left: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 0.6rem;
+    }
+
+    .status-badge.success {
+      background: rgba(0, 168, 107, 0.2);
+      color: var(--success-green-light);
+    }
+
+    .status-badge.error {
+      background: rgba(248, 81, 73, 0.2);
+      color: var(--error-red);
+    }
+
+    .status-badge.warning {
+      background: rgba(255, 107, 53, 0.2);
+      color: var(--accent-orange);
+    }
+
+    .response-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.875rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      min-height: 0;
+    }
+
+    .response-body pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+
+    .response-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .response-placeholder svg {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+
+    /* JSON Syntax Highlighting */
+    .json-key { color: var(--json-key); }
+    .json-string { color: var(--json-string); }
+    .json-number { color: var(--json-number); }
+    .json-boolean { color: var(--json-boolean); }
+    .json-null { color: var(--json-null); }
+
+    /* Navigation */
+    .navigation {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-top: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg-tertiary);
+      border-color: var(--border-highlight);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .nav-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .nav-btn.next {
+      background: var(--hl7-blue);
+      border-color: var(--hl7-blue);
+      color: white;
+    }
+
+    .nav-btn.next:hover:not(:disabled) {
+      background: var(--hl7-blue-light);
+      border-color: var(--hl7-blue-light);
+    }
+
+    .nav-info {
+      text-align: center;
+    }
+
+    .nav-info-title {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 0.15rem;
+    }
+
+    .nav-info-step {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* View JSON toggle */
+    .view-toggle {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .view-toggle-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .view-toggle-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .view-toggle-btn.active {
+      background: var(--hl7-blue);
+      border-color: var(--hl7-blue);
+      color: white;
+    }
+
+    .view-toggle-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* Footer */
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.35rem 0;
+      border-top: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .footer-logo {
+      height: 18px;
+      opacity: 0.6;
+    }
+
+    .footer-text {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    /* Animations */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-card {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    /* Copy button */
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .copy-btn.copied {
+      background: rgba(0, 168, 107, 0.2);
+      border-color: var(--success-green);
+      color: var(--success-green);
+    }
+
+    .copy-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="container">
+    <header>
+      <div class="header-left">
+        <img src="logo-ceg-icon.svg" alt="CEG Consultores" class="logo-ceg">
+        <span class="header-title">Taller FHIRPath</span>
+      </div>
+      <div class="header-right">
+        <div class="server-status" id="serverStatus">
+          <span class="dot"></span>
+          <span id="serverStatusText">Verificando...</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Progress bar -->
+    <div class="progress-container">
+      <div class="progress-header">
+        <span class="progress-title">Conectaton HL7 Chile 2025</span>
+        <span class="progress-counter" id="progressCounter">Paso 1 de 10</span>
+      </div>
+      <div class="progress-bar" id="progressBar">
+        <!-- Steps will be rendered here -->
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="step-card" id="stepCard">
+        <!-- Step content will be rendered here -->
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navigation">
+      <button class="nav-btn prev" id="prevBtn" onclick="prevStep()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Anterior
+      </button>
+      <div class="nav-info">
+        <div class="nav-info-title">Siguiente paso</div>
+        <div class="nav-info-step" id="nextStepPreview">--</div>
+      </div>
+      <button class="nav-btn next" id="nextBtn" onclick="nextStep()">
+        Siguiente
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </nav>
+
+    <footer>
+      <img src="logo-ceg-icon.svg" alt="CEG" class="footer-logo">
+      <span class="footer-text">CEG Consultores SpA | Conectaton HL7 Chile 2025</span>
+    </footer>
+  </div>
+
+  <script>
+    // ==================== CONFIGURATION ====================
+    const FHIR_BASE = 'http://localhost:8081/fhir';
+    let currentStep = 0;
+    let stepStates = {}; // Track execution state of each step
+
+    // ==================== STEP DATA ====================
+    const STEPS = [
+      {
+        id: 'loadProfileV1',
+        number: 1,
+        title: 'Cargar Perfil v1 (Permisivo)',
+        category: 'invariantes',
+        categoryLabel: 'Invariantes',
+        method: 'POST',
+        endpoint: '/StructureDefinition',
+        description: 'Cargamos un StructureDefinition con 3 invariantes FHIRPath. Con <code>severity: warning</code> solo generan advertencias.',
+        highlights: [
+          { type: 'info', text: '<strong>cl-rut-formato:</strong> <code>identifier.where(type.coding.code=\'NNCHL\').all(value.matches(\'^[0-9]+-[0-9Kk]$\'))</code>' },
+          { type: 'info', text: '<strong>where()</strong> filtra identificadores con codigo NNCHL. <strong>all()</strong> verifica que TODOS cumplan. <strong>matches()</strong> valida con regex.' },
+          { type: 'info', text: '<strong>cl-contacto-emergencia:</strong> <code>contact.exists() or birthDate.empty()</code>' },
+          { type: 'info', text: '<strong>exists()</strong> retorna true si hay al menos un contacto. <strong>empty()</strong> true si no hay fecha de nacimiento.' },
+          { type: 'info', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(system=\'phone\' and use=\'mobile\').all(value.startsWith(\'+56\'))</code>' },
+          { type: 'info', text: '<strong>startsWith()</strong> verifica que el valor comience con +56 (prefijo chileno).' }
+        ],
+        resource: 'structureDefinitionV1'
+      },
+      {
+        id: 'validateJuan1',
+        number: 2,
+        title: 'Validar Juan Gonzalez',
+        category: 'invariantes',
+        categoryLabel: 'Invariantes',
+        method: 'POST',
+        endpoint: '/Patient/$validate',
+        description: 'Validamos a Juan contra el perfil. Analicemos como evalua cada expresion FHIRPath:',
+        highlights: [
+          { type: 'success', text: '<strong>cl-rut-formato:</strong> <code>\'12345678-9\'.matches(\'^[0-9]+-[0-9Kk]$\')</code> → <strong>true</strong>' },
+          { type: 'success', text: '<strong>cl-telefono-movil:</strong> <code>\'+56912345678\'.startsWith(\'+56\')</code> → <strong>true</strong>' },
+          { type: 'success', text: '<strong>cl-contacto-emergencia:</strong> Edad 34 < 65, no aplica la regla' }
+        ],
+        resource: 'patientJuan'
+      },
+      {
+        id: 'validateMaria1',
+        number: 3,
+        title: 'Validar Maria Silva',
+        category: 'invariantes',
+        categoryLabel: 'Invariantes',
+        method: 'POST',
+        endpoint: '/Patient/$validate',
+        description: 'Maria tiene problemas con los 3 constraints. Veamos como fallan las expresiones:',
+        highlights: [
+          { type: 'warning', text: '<strong>cl-rut-formato:</strong> <code>\'123-4\'.matches(\'^[0-9]+-[0-9Kk]$\')</code> → true (formato OK, pero muy corto)' },
+          { type: 'warning', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).empty()</code> → true (no tiene movil)' },
+          { type: 'warning', text: '<strong>cl-contacto-emergencia:</strong> <code>contact.exists()</code> → false, edad 69 > 65 → <strong>FALLA</strong>' },
+          { type: 'info', text: 'Como son <code>severity: warning</code>, la validacion pasa con advertencias' }
+        ],
+        resource: 'patientMaria'
+      },
+      {
+        id: 'loadProfileV2',
+        number: 4,
+        title: 'Cargar Perfil v2 (Estricto)',
+        category: 'invariantes',
+        categoryLabel: 'Cambio de Perfil',
+        method: 'PUT',
+        endpoint: '/StructureDefinition/PacienteChilenoDemo',
+        description: 'Actualizamos el perfil con <code>severity: error</code> y expresiones mas estrictas:',
+        highlights: [
+          { type: 'warning', text: '<strong>cl-rut-formato:</strong> <code>value.matches(\'^[0-9]{7,8}-[0-9Kk]$\')</code>' },
+          { type: 'info', text: 'Ahora exige 7-8 digitos con <code>{7,8}</code> en la regex. RUT "123-4" ya no pasa.' },
+          { type: 'warning', text: '<strong>cl-contacto-emergencia:</strong> <code>today().toString().substring(0,4).toInteger() - birthDate...</code>' },
+          { type: 'info', text: '<strong>today()</strong> fecha actual. <strong>substring(0,4)</strong> extrae el año. <strong>toInteger()</strong> convierte a numero para calcular edad.' },
+          { type: 'warning', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).exists() and ...</code>' },
+          { type: 'info', text: 'Ahora usa <strong>exists()</strong> (DEBE tener movil) en vez de <strong>empty()</strong> (opcional).' }
+        ],
+        resource: 'structureDefinitionV2'
+      },
+      {
+        id: 'validateJuan2',
+        number: 5,
+        title: 'Validar Juan Gonzalez',
+        category: 'invariantes',
+        categoryLabel: 'Con Perfil v2',
+        method: 'POST',
+        endpoint: '/Patient/$validate',
+        description: 'Juan sigue pasando con el perfil estricto porque cumple todas las expresiones:',
+        highlights: [
+          { type: 'success', text: '<strong>cl-rut-formato:</strong> <code>\'12345678-9\'.matches(\'^[0-9]{7,8}-[0-9Kk]$\')</code> → <strong>true</strong> (8 digitos)' },
+          { type: 'success', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).exists()</code> → <strong>true</strong> (tiene movil)' },
+          { type: 'success', text: '<strong>cl-contacto-emergencia:</strong> Edad 34 < 65 → no requiere contacto' }
+        ],
+        resource: 'patientJuan'
+      },
+      {
+        id: 'validateMaria2',
+        number: 6,
+        title: 'Validar Maria Silva (FALLA)',
+        category: 'invariantes',
+        categoryLabel: 'Con Perfil v2',
+        method: 'POST',
+        endpoint: '/Patient/$validate',
+        description: 'El mismo recurso de Maria ahora FALLA. Veamos por que cada expresion retorna false:',
+        highlights: [
+          { type: 'warning', text: '<strong>cl-rut-formato:</strong> <code>\'123-4\'.matches(\'^[0-9]{7,8}-...$\')</code> → <strong>false</strong> (solo 3 digitos)' },
+          { type: 'warning', text: '<strong>cl-telefono-movil:</strong> <code>telecom.where(...).exists()</code> → <strong>false</strong> (no tiene movil)' },
+          { type: 'warning', text: '<strong>cl-contacto-emergencia:</strong> Edad 69 >= 65 y <code>contact.exists()</code> → <strong>false</strong>' },
+          { type: 'info', text: 'Con <code>severity: error</code>, cualquier false bloquea la validacion' }
+        ],
+        resource: 'patientMaria'
+      },
+      {
+        id: 'createPatients',
+        number: 7,
+        title: 'Crear Pacientes de Prueba',
+        category: 'searchparam',
+        categoryLabel: 'SearchParameters',
+        method: 'POST',
+        endpoint: '/Patient (x3)',
+        description: 'Creamos 3 pacientes en el servidor para probar las busquedas. Cada uno tiene un RUT chileno diferente.',
+        highlights: [
+          { type: 'info', text: 'Juan Gonzalez: <code>12345678-9</code>' },
+          { type: 'info', text: 'Maria Silva: <code>123-4</code>' },
+          { type: 'info', text: 'Pedro Lagos: <code>98765432-1</code>' }
+        ],
+        resource: 'patients'
+      },
+      {
+        id: 'searchWithoutSP',
+        number: 8,
+        title: 'Buscar por RUT (sin SearchParameter)',
+        category: 'searchparam',
+        categoryLabel: 'SearchParameters',
+        method: 'GET',
+        endpoint: '/Patient?rut=12345678-9',
+        description: 'Sin un SearchParameter, el servidor no sabe como interpretar el parametro "rut":',
+        highlights: [
+          { type: 'warning', text: '<strong>Problema:</strong> No existe una expresion FHIRPath asociada a "rut"' },
+          { type: 'warning', text: 'El servidor no puede navegar a <code>Patient.identifier.where(...)</code>' },
+          { type: 'info', text: 'Resultado: Ignora el parametro o retorna error 400' },
+          { type: 'info', text: '<strong>Solucion:</strong> Crear un SearchParameter con la expresion FHIRPath' }
+        ],
+        resource: null
+      },
+      {
+        id: 'loadSearchParam',
+        number: 9,
+        title: 'Cargar SearchParameter RUT',
+        category: 'searchparam',
+        categoryLabel: 'SearchParameters',
+        method: 'POST',
+        endpoint: '/SearchParameter',
+        description: 'Registramos un SearchParameter que usa FHIRPath para indexar el RUT:',
+        highlights: [
+          { type: 'success', text: '<strong>Expression:</strong> <code>Patient.identifier.where(type.coding.code=\'NNCHL\')</code>' },
+          { type: 'info', text: '<strong>Patient.identifier</strong> - Navega a la coleccion de identificadores del paciente' },
+          { type: 'info', text: '<strong>where(type.coding.code=\'NNCHL\')</strong> - Filtra solo los que tengan codigo NNCHL (RUT chileno)' },
+          { type: 'info', text: 'El servidor indexa el <strong>value</strong> del identifier filtrado para busquedas rapidas' }
+        ],
+        resource: 'searchParameter'
+      },
+      {
+        id: 'searchWithSP',
+        number: 10,
+        title: 'Buscar por RUT (con SearchParameter)',
+        category: 'searchparam',
+        categoryLabel: 'SearchParameters',
+        method: 'GET',
+        endpoint: '/Patient?rut=12345678-9',
+        description: 'Con el SearchParameter registrado, el servidor ejecuta la expresion FHIRPath internamente:',
+        highlights: [
+          { type: 'success', text: '<strong>Proceso:</strong> GET /Patient?rut=12345678-9' },
+          { type: 'info', text: '1. El servidor busca en su indice de <code>rut</code>' },
+          { type: 'info', text: '2. Encuentra pacientes donde <code>identifier.where(type.coding.code=\'NNCHL\').value</code> = "12345678-9"' },
+          { type: 'success', text: '3. Retorna un Bundle con los pacientes que coinciden' }
+        ],
+        resource: null
+      }
+    ];
+
+    // ==================== RESOURCES ====================
+    const RESOURCES = {
+      structureDefinitionV1: {
+        "resourceType": "StructureDefinition",
+        "id": "PacienteChilenoDemo",
+        "url": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo",
+        "version": "1.0.0",
+        "name": "PacienteChilenoDemo",
+        "title": "Paciente Chileno Demo - v1 (Permisivo)",
+        "status": "active",
+        "experimental": true,
+        "date": "2025-01-12",
+        "publisher": "Taller FHIRPath - Conectaton HL7 Chile",
+        "description": "Perfil de demostración para el taller de FHIRPath. Version 1 con constraints permisivos.",
+        "fhirVersion": "4.0.1",
+        "kind": "resource",
+        "abstract": false,
+        "type": "Patient",
+        "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+        "derivation": "constraint",
+        "differential": {
+          "element": [
+            {
+              "id": "Patient",
+              "path": "Patient",
+              "constraint": [
+                {
+                  "key": "cl-rut-formato",
+                  "severity": "warning",
+                  "human": "El RUT debe tener formato valido (digitos-digito verificador)",
+                  "expression": "identifier.where(type.coding.code='NNCHL').empty() or identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]+-[0-9Kk]$'))",
+                  "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+                },
+                {
+                  "key": "cl-contacto-emergencia",
+                  "severity": "warning",
+                  "human": "Se recomienda tener un contacto de emergencia",
+                  "expression": "contact.exists() or birthDate.empty()",
+                  "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+                },
+                {
+                  "key": "cl-telefono-movil",
+                  "severity": "warning",
+                  "human": "Si existe telefono movil, debe tener formato chileno (+56)",
+                  "expression": "telecom.where(system='phone' and use='mobile').empty() or telecom.where(system='phone' and use='mobile').all(value.startsWith('+56'))",
+                  "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+                }
+              ]
+            },
+            {
+              "id": "Patient.identifier",
+              "path": "Patient.identifier",
+              "min": 1,
+              "mustSupport": true
+            },
+            {
+              "id": "Patient.name",
+              "path": "Patient.name",
+              "min": 1,
+              "mustSupport": true
+            }
+          ]
+        }
+      },
+      structureDefinitionV2: {
+        "resourceType": "StructureDefinition",
+        "id": "PacienteChilenoDemo",
+        "url": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo",
+        "version": "2.0.0",
+        "name": "PacienteChilenoDemo",
+        "title": "Paciente Chileno Demo - v2 (Estricto)",
+        "status": "active",
+        "experimental": true,
+        "date": "2025-01-12",
+        "publisher": "Taller FHIRPath - Conectaton HL7 Chile",
+        "description": "Perfil de demostración - Version 2 con constraints ESTRICTOS.",
+        "fhirVersion": "4.0.1",
+        "kind": "resource",
+        "abstract": false,
+        "type": "Patient",
+        "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+        "derivation": "constraint",
+        "differential": {
+          "element": [
+            {
+              "id": "Patient",
+              "path": "Patient",
+              "constraint": [
+                {
+                  "key": "cl-rut-formato",
+                  "severity": "error",
+                  "human": "El RUT DEBE tener formato valido con 7-8 digitos (ej: 12345678-9)",
+                  "expression": "identifier.where(type.coding.code='NNCHL').empty() or identifier.where(type.coding.code='NNCHL').all(value.matches('^[0-9]{7,8}-[0-9Kk]$'))",
+                  "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+                },
+                {
+                  "key": "cl-contacto-emergencia",
+                  "severity": "error",
+                  "human": "Pacientes mayores de 65 anios DEBEN tener un contacto de emergencia",
+                  "expression": "birthDate.empty() or (today().toString().substring(0,4).toInteger() - birthDate.toString().substring(0,4).toInteger() < 65) or contact.exists()",
+                  "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+                },
+                {
+                  "key": "cl-telefono-movil",
+                  "severity": "error",
+                  "human": "El paciente DEBE tener un telefono movil con formato chileno (+56)",
+                  "expression": "telecom.where(system='phone' and use='mobile').exists() and telecom.where(system='phone' and use='mobile').all(value.startsWith('+56'))",
+                  "source": "https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"
+                }
+              ]
+            },
+            {
+              "id": "Patient.identifier",
+              "path": "Patient.identifier",
+              "min": 1,
+              "mustSupport": true
+            },
+            {
+              "id": "Patient.name",
+              "path": "Patient.name",
+              "min": 1,
+              "mustSupport": true
+            },
+            {
+              "id": "Patient.telecom",
+              "path": "Patient.telecom",
+              "min": 1,
+              "mustSupport": true
+            }
+          ]
+        }
+      },
+      patientJuan: {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+        },
+        "identifier": [{
+          "type": {
+            "coding": [{
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "code": "NNCHL",
+              "display": "RUT Chile"
+            }]
+          },
+          "system": "http://regcivil.cl/run",
+          "value": "12345678-9"
+        }],
+        "active": true,
+        "name": [{
+          "use": "official",
+          "family": "Gonzalez",
+          "given": ["Juan", "Carlos"]
+        }],
+        "telecom": [
+          {"system": "phone", "value": "+56912345678", "use": "mobile"},
+          {"system": "email", "value": "juan.gonzalez@example.com", "use": "home"}
+        ],
+        "gender": "male",
+        "birthDate": "1990-05-15"
+      },
+      patientMaria: {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+        },
+        "identifier": [{
+          "type": {
+            "coding": [{
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "code": "NNCHL",
+              "display": "RUT Chile"
+            }]
+          },
+          "system": "http://regcivil.cl/run",
+          "value": "123-4"
+        }],
+        "active": true,
+        "name": [{
+          "use": "official",
+          "family": "Silva",
+          "given": ["Maria", "Elena"]
+        }],
+        "telecom": [
+          {"system": "email", "value": "maria.silva@example.com", "use": "home"}
+        ],
+        "gender": "female",
+        "birthDate": "1955-03-20"
+      },
+      patientPedro: {
+        "resourceType": "Patient",
+        "meta": {
+          "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+        },
+        "identifier": [{
+          "type": {
+            "coding": [{
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "code": "NNCHL",
+              "display": "RUT Chile"
+            }]
+          },
+          "system": "http://regcivil.cl/run",
+          "value": "98765432-1"
+        }],
+        "active": true,
+        "name": [{
+          "use": "official",
+          "family": "Lagos",
+          "given": ["Pedro", "Antonio"]
+        }],
+        "telecom": [
+          {"system": "phone", "value": "+56998765432", "use": "mobile"},
+          {"system": "email", "value": "pedro.lagos@example.com", "use": "work"}
+        ],
+        "gender": "male",
+        "birthDate": "1985-11-08",
+        "contact": [{
+          "relationship": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v2-0131", "code": "C"}]}],
+          "name": {"family": "Lagos", "given": ["Ana"]},
+          "telecom": [{"system": "phone", "value": "+56911111111", "use": "mobile"}]
+        }]
+      },
+      searchParameter: {
+        "resourceType": "SearchParameter",
+        "id": "patient-rut",
+        "url": "https://example.org/fhir/SearchParameter/patient-rut",
+        "version": "1.0.0",
+        "name": "PatientRUT",
+        "title": "Busqueda de Paciente por RUT",
+        "status": "active",
+        "experimental": true,
+        "date": "2025-01-12",
+        "publisher": "Taller FHIRPath - Conectaton HL7 Chile",
+        "description": "SearchParameter personalizado para buscar pacientes por RUT chileno.",
+        "code": "rut",
+        "base": ["Patient"],
+        "type": "token",
+        "expression": "Patient.identifier.where(type.coding.code='NNCHL')"
+      }
+    };
+
+    // ==================== UTILITY FUNCTIONS ====================
+    function syntaxHighlight(json) {
+      if (typeof json !== 'string') {
+        json = JSON.stringify(json, null, 2);
+      }
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'json-number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'json-key';
+          } else {
+            cls = 'json-string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+          cls = 'json-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+
+    function getResourceForStep(step) {
+      if (!step.resource) return null;
+      if (step.resource === 'patients') {
+        return [RESOURCES.patientJuan, RESOURCES.patientMaria, RESOURCES.patientPedro];
+      }
+      return RESOURCES[step.resource];
+    }
+
+    // ==================== RENDER FUNCTIONS ====================
+    function renderProgressBar() {
+      const bar = document.getElementById('progressBar');
+      bar.innerHTML = STEPS.map((step, index) => {
+        let stateClass = '';
+        if (index < currentStep) stateClass = stepStates[step.id] === 'error' ? 'error' : 'completed';
+        else if (index === currentStep) stateClass = 'active';
+        return `<div class="progress-segment ${stateClass}" onclick="goToStep(${index})" title="Paso ${step.number}: ${step.title}"></div>`;
+      }).join('');
+
+      document.getElementById('progressCounter').textContent = `Paso ${currentStep + 1} de ${STEPS.length}`;
+    }
+
+    function renderStep() {
+      const step = STEPS[currentStep];
+      const resource = getResourceForStep(step);
+      const state = stepStates[step.id];
+
+      let executeButtonClass = '';
+      let executeButtonIcon = '<path d="M5 12h14M12 5l7 7-7 7"/>';
+      let executeButtonText = 'Ejecutar';
+
+      if (state === 'loading') {
+        executeButtonClass = 'loading';
+        executeButtonIcon = '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="30 70"/>';
+        executeButtonText = 'Ejecutando...';
+      } else if (state === 'success') {
+        executeButtonClass = 'success';
+        executeButtonIcon = '<polyline points="20 6 9 17 4 12"/>';
+        executeButtonText = 'Completado';
+      } else if (state === 'error') {
+        executeButtonClass = 'error';
+        executeButtonIcon = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
+        executeButtonText = 'Error - Reintentar';
+      }
+
+      const categoryClass = step.category === 'searchparam' ? 'searchparam' : '';
+
+      const stepCard = document.getElementById('stepCard');
+      stepCard.innerHTML = `
+        <div class="step-header">
+          <div class="step-header-left">
+            <div class="step-number-badge">${step.number}</div>
+            <div class="step-title-group">
+              <h2>${step.title}</h2>
+              <div class="step-subtitle"><span class="method">${step.method}</span> ${step.endpoint}</div>
+            </div>
+          </div>
+          <div class="step-category ${categoryClass}">${step.categoryLabel}</div>
+        </div>
+        <div class="step-content">
+          <div class="info-panel">
+            <div class="info-section">
+              <div class="info-section-title">Descripcion</div>
+              <p>${step.description}</p>
+              ${step.highlights.map(h => `
+                <div class="info-highlight ${h.type}">${h.text}</div>
+              `).join('')}
+            </div>
+            <button class="execute-btn ${executeButtonClass}" onclick="executeCurrentStep()" ${state === 'loading' ? 'disabled' : ''}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                ${executeButtonIcon}
+              </svg>
+              ${executeButtonText}
+            </button>
+          </div>
+          <div class="response-panel">
+            <div class="response-toolbar">
+              <div class="response-toolbar-left">
+                <span class="toolbar-dot"></span>
+                <span class="toolbar-dot"></span>
+                <span class="toolbar-dot"></span>
+                <span class="response-endpoint" id="responseEndpoint">${FHIR_BASE}${step.endpoint}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="status-badge" id="statusBadge" style="display: none;"></span>
+                <button class="copy-btn" id="copyBtn" style="display: none;" onclick="copyResponse()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  <span id="copyBtnText">Copiar</span>
+                </button>
+              </div>
+            </div>
+            <div class="response-body" id="responseBody">
+              ${resource ? `
+                <div class="view-toggle">
+                  <button class="view-toggle-btn active" onclick="showView('request')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    Request
+                  </button>
+                  <button class="view-toggle-btn" onclick="showView('response')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Response
+                  </button>
+                </div>
+                <pre id="jsonContent">${syntaxHighlight(resource)}</pre>
+              ` : `
+                <div class="response-placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  <span>Esta operacion no envia un body</span>
+                </div>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Update navigation
+      document.getElementById('prevBtn').disabled = currentStep === 0;
+      document.getElementById('nextBtn').disabled = currentStep === STEPS.length - 1;
+
+      const nextStep = STEPS[currentStep + 1];
+      document.getElementById('nextStepPreview').textContent = nextStep ? nextStep.title : 'Fin del taller';
+    }
+
+    let currentViewData = { request: null, response: null };
+    let currentView = 'request';
+
+    function showView(view) {
+      currentView = view;
+      const buttons = document.querySelectorAll('.view-toggle-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      buttons[view === 'request' ? 0 : 1].classList.add('active');
+
+      const jsonContent = document.getElementById('jsonContent');
+      if (view === 'request') {
+        const resource = getResourceForStep(STEPS[currentStep]);
+        jsonContent.innerHTML = resource ? syntaxHighlight(resource) : '';
+      } else if (currentViewData.response) {
+        jsonContent.innerHTML = syntaxHighlight(currentViewData.response);
+      } else {
+        jsonContent.innerHTML = '<span style="color: var(--text-muted);">Ejecuta el paso para ver la respuesta</span>';
+      }
+    }
+
+    // ==================== NAVIGATION ====================
+    function goToStep(index) {
+      if (index >= 0 && index < STEPS.length) {
+        currentStep = index;
+        currentViewData = { request: null, response: null };
+        renderProgressBar();
+        renderStep();
+      }
+    }
+
+    function prevStep() {
+      goToStep(currentStep - 1);
+    }
+
+    function nextStep() {
+      goToStep(currentStep + 1);
+    }
+
+    // ==================== API FUNCTIONS ====================
+    async function checkServerStatus() {
+      const statusEl = document.getElementById('serverStatus');
+      const textEl = document.getElementById('serverStatusText');
+
+      try {
+        const response = await fetch(`${FHIR_BASE}/metadata`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/fhir+json' }
+        });
+
+        if (response.ok) {
+          statusEl.classList.add('connected');
+          textEl.textContent = 'Conectado';
+        } else {
+          throw new Error('Server error');
+        }
+      } catch (error) {
+        statusEl.classList.remove('connected');
+        textEl.textContent = 'Sin conexion';
+      }
+    }
+
+    async function executeCurrentStep() {
+      const step = STEPS[currentStep];
+      stepStates[step.id] = 'loading';
+      renderStep();
+      renderProgressBar();
+
+      try {
+        let response, data;
+
+        if (step.id === 'createPatients') {
+          const results = [];
+          for (const patient of [RESOURCES.patientJuan, RESOURCES.patientMaria, RESOURCES.patientPedro]) {
+            const res = await fetch(`${FHIR_BASE}/Patient`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/fhir+json',
+                'Accept': 'application/fhir+json'
+              },
+              body: JSON.stringify(patient)
+            });
+            const patientData = await res.json();
+            results.push({
+              status: res.status,
+              name: patient.name[0].family,
+              id: patientData.id || 'error'
+            });
+          }
+          data = { message: "Pacientes creados", results };
+          stepStates[step.id] = 'success';
+        } else if (step.method === 'GET') {
+          response = await fetch(`${FHIR_BASE}${step.endpoint}`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/fhir+json' }
+          });
+          data = await response.json();
+          stepStates[step.id] = response.ok ? 'success' : 'error';
+        } else {
+          const resource = getResourceForStep(step);
+          const method = step.id === 'loadProfileV2' ? 'PUT' : 'POST';
+          response = await fetch(`${FHIR_BASE}${step.endpoint.split(' ')[0]}`, {
+            method: method,
+            headers: {
+              'Content-Type': 'application/fhir+json',
+              'Accept': 'application/fhir+json'
+            },
+            body: JSON.stringify(resource)
+          });
+          data = await response.json();
+
+          let isSuccess = response.ok;
+          if (data.resourceType === 'OperationOutcome') {
+            const hasErrors = data.issue?.some(i => i.severity === 'error' || i.severity === 'fatal');
+            isSuccess = !hasErrors;
+          }
+          stepStates[step.id] = isSuccess ? 'success' : 'error';
+        }
+
+        currentViewData.response = data;
+        updateResponseUI(data);
+      } catch (error) {
+        stepStates[step.id] = 'error';
+        currentViewData.response = { error: 'Error de conexion', message: error.message };
+        updateResponseUI(currentViewData.response);
+      }
+
+      renderStep();
+      renderProgressBar();
+      showView('response');
+    }
+
+    function updateResponseUI(data) {
+      const badge = document.getElementById('statusBadge');
+      const copyBtn = document.getElementById('copyBtn');
+
+      badge.style.display = 'inline-block';
+      copyBtn.style.display = 'flex';
+
+      let badgeClass = 'success';
+      let badgeText = 'OK';
+
+      if (data.resourceType === 'OperationOutcome') {
+        const hasErrors = data.issue?.some(i => i.severity === 'error' || i.severity === 'fatal');
+        const hasWarnings = data.issue?.some(i => i.severity === 'warning');
+        if (hasErrors) {
+          badgeClass = 'error';
+          badgeText = 'Validacion Fallida';
+        } else if (hasWarnings) {
+          badgeClass = 'warning';
+          badgeText = 'Con Advertencias';
+        } else {
+          badgeText = 'Validacion OK';
+        }
+      } else if (data.error) {
+        badgeClass = 'error';
+        badgeText = 'Error';
+      }
+
+      badge.className = `status-badge ${badgeClass}`;
+      badge.textContent = badgeText;
+    }
+
+    async function copyResponse() {
+      if (!currentViewData.response) return;
+
+      const btn = document.getElementById('copyBtn');
+      const text = document.getElementById('copyBtnText');
+
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(currentViewData.response, null, 2));
+        btn.classList.add('copied');
+        text.textContent = 'Copiado!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          text.textContent = 'Copiar';
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    }
+
+    // ==================== THEME ====================
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (!prefersDark) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      }
+    }
+
+    // ==================== KEYBOARD NAVIGATION ====================
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevStep();
+      else if (e.key === 'ArrowRight') nextStep();
+      else if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) executeCurrentStep();
+    });
+
+    // ==================== INIT ====================
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProgressBar();
+      renderStep();
+      checkServerStatus();
+      setInterval(checkServerStatus, 30000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+### ============================================================
+### TALLER FHIRPATH - CONECTATON HL7 CHILE 2025
+### Archivo de requests para VS Code REST Client Extension
+### ============================================================
+
+@baseUrl = http://localhost:8081/fhir
+@contentType = application/fhir+json
+
+### ============================================================
+### PARTE 0: VERIFICAR SERVIDOR
+### ============================================================
+
+### Verificar que el servidor esta corriendo
+GET {{baseUrl}}/metadata
+Accept: {{contentType}}
+
+### ============================================================
+### PARTE 1: INVARIANTES - Demostracion de validacion
+### ============================================================
+
+### 1. Cargar StructureDefinition v1 (Permisivo)
+# Constraints con severity: warning
+POST {{baseUrl}}/StructureDefinition
+Content-Type: {{contentType}}
+
+< ./resources/profiles/StructureDefinition-PacienteChilenoDemo-v1.json
+
+### 2. Validar Juan Gonzalez (debe PASAR)
+# Paciente con todos los datos correctos
+POST {{baseUrl}}/Patient/$validate
+Content-Type: {{contentType}}
+
+{
+  "resourceType": "Patient",
+  "meta": {
+    "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+  },
+  "identifier": [{
+    "type": {
+      "coding": [{
+        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+        "code": "NNCHL",
+        "display": "RUT Chile"
+      }]
+    },
+    "system": "http://regcivil.cl/run",
+    "value": "12345678-9"
+  }],
+  "active": true,
+  "name": [{
+    "use": "official",
+    "family": "Gonzalez",
+    "given": ["Juan", "Carlos"]
+  }],
+  "telecom": [
+    {"system": "phone", "value": "+56912345678", "use": "mobile"},
+    {"system": "email", "value": "juan.gonzalez@example.com", "use": "home"}
+  ],
+  "gender": "male",
+  "birthDate": "1990-05-15"
+}
+
+### 3. Validar Maria Silva con v1 (debe PASAR con warnings)
+# Paciente con RUT corto, sin telefono movil, mayor de 65 sin contacto
+POST {{baseUrl}}/Patient/$validate
+Content-Type: {{contentType}}
+
+{
+  "resourceType": "Patient",
+  "meta": {
+    "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+  },
+  "identifier": [{
+    "type": {
+      "coding": [{
+        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+        "code": "NNCHL",
+        "display": "RUT Chile"
+      }]
+    },
+    "system": "http://regcivil.cl/run",
+    "value": "123-4"
+  }],
+  "active": true,
+  "name": [{
+    "use": "official",
+    "family": "Silva",
+    "given": ["Maria", "Elena"]
+  }],
+  "telecom": [
+    {"system": "email", "value": "maria.silva@example.com", "use": "home"}
+  ],
+  "gender": "female",
+  "birthDate": "1955-03-20"
+}
+
+### ============================================================
+### CAMBIO DE PERFIL - De permisivo a estricto
+### ============================================================
+
+### 4. Actualizar a StructureDefinition v2 (Estricto)
+# Constraints con severity: error
+PUT {{baseUrl}}/StructureDefinition/PacienteChilenoDemo
+Content-Type: {{contentType}}
+
+< ./resources/profiles/StructureDefinition-PacienteChilenoDemo-v2.json
+
+### 5. Validar Juan Gonzalez con v2 (debe PASAR)
+# Juan tiene todos los datos correctos
+POST {{baseUrl}}/Patient/$validate
+Content-Type: {{contentType}}
+
+{
+  "resourceType": "Patient",
+  "meta": {
+    "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+  },
+  "identifier": [{
+    "type": {
+      "coding": [{
+        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+        "code": "NNCHL",
+        "display": "RUT Chile"
+      }]
+    },
+    "system": "http://regcivil.cl/run",
+    "value": "12345678-9"
+  }],
+  "active": true,
+  "name": [{
+    "use": "official",
+    "family": "Gonzalez",
+    "given": ["Juan", "Carlos"]
+  }],
+  "telecom": [
+    {"system": "phone", "value": "+56912345678", "use": "mobile"},
+    {"system": "email", "value": "juan.gonzalez@example.com", "use": "home"}
+  ],
+  "gender": "male",
+  "birthDate": "1990-05-15"
+}
+
+### 6. Validar Maria Silva con v2 (debe FALLAR)
+# Maria viola 3 constraints:
+# - cl-rut-formato: RUT muy corto (debe ser 7-8 digitos)
+# - cl-contacto-emergencia: Mayor de 65 sin contacto
+# - cl-telefono-movil: Sin telefono movil
+POST {{baseUrl}}/Patient/$validate
+Content-Type: {{contentType}}
+
+{
+  "resourceType": "Patient",
+  "meta": {
+    "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+  },
+  "identifier": [{
+    "type": {
+      "coding": [{
+        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+        "code": "NNCHL",
+        "display": "RUT Chile"
+      }]
+    },
+    "system": "http://regcivil.cl/run",
+    "value": "123-4"
+  }],
+  "active": true,
+  "name": [{
+    "use": "official",
+    "family": "Silva",
+    "given": ["Maria", "Elena"]
+  }],
+  "telecom": [
+    {"system": "email", "value": "maria.silva@example.com", "use": "home"}
+  ],
+  "gender": "female",
+  "birthDate": "1955-03-20"
+}
+
+### ============================================================
+### PARTE 2: SEARCHPARAMETERS - Busquedas personalizadas
+### ============================================================
+
+### 7a. Crear paciente Juan Gonzalez
+POST {{baseUrl}}/Patient
+Content-Type: {{contentType}}
+
+< ./resources/examples/Patient-juan-gonzalez.json
+
+### 7b. Crear paciente Maria Silva
+POST {{baseUrl}}/Patient
+Content-Type: {{contentType}}
+
+< ./resources/examples/Patient-maria-silva.json
+
+### 7c. Crear paciente Pedro Lagos
+POST {{baseUrl}}/Patient
+Content-Type: {{contentType}}
+
+< ./resources/examples/Patient-pedro-lagos.json
+
+### 8. Buscar por RUT (SIN SearchParameter cargado)
+# Deberia dar error porque el parametro 'rut' no existe
+GET {{baseUrl}}/Patient?rut=12345678-9
+Accept: {{contentType}}
+
+### 9. Cargar SearchParameter para RUT
+POST {{baseUrl}}/SearchParameter
+Content-Type: {{contentType}}
+
+< ./resources/searchparameters/SearchParameter-patient-rut.json
+
+### 10. Buscar por RUT (CON SearchParameter cargado)
+# Ahora deberia encontrar al paciente Juan Gonzalez
+GET {{baseUrl}}/Patient?rut=12345678-9
+Accept: {{contentType}}
+
+### ============================================================
+### BUSQUEDAS ADICIONALES
+### ============================================================
+
+### Buscar otro RUT
+GET {{baseUrl}}/Patient?rut=98765432-1
+Accept: {{contentType}}
+
+### Listar todos los pacientes
+GET {{baseUrl}}/Patient
+Accept: {{contentType}}
+
+### Ver el SearchParameter cargado
+GET {{baseUrl}}/SearchParameter/patient-rut
+Accept: {{contentType}}
+
+### Ver el StructureDefinition cargado
+GET {{baseUrl}}/StructureDefinition/PacienteChilenoDemo
+Accept: {{contentType}}
+
+### ============================================================
+### LIMPIEZA (opcional)
+### ============================================================
+
+### Eliminar todos los pacientes (usar con cuidado)
+# DELETE {{baseUrl}}/Patient?_cascade=delete
+
+### Eliminar el SearchParameter
+# DELETE {{baseUrl}}/SearchParameter/patient-rut
+
+### Eliminar el StructureDefinition
+# DELETE {{baseUrl}}/StructureDefinition/PacienteChilenoDemo

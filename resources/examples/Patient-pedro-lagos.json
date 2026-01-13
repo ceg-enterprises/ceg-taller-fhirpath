@@ -1,0 +1,78 @@
+{
+  "resourceType": "Patient",
+  "id": "pedro-lagos",
+  "meta": {
+    "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "NNCHL",
+            "display": "RUT Chile"
+          }
+        ]
+      },
+      "system": "http://regcivil.cl/run",
+      "value": "98765432-1"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "family": "Lagos",
+      "given": ["Pedro", "Antonio"]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+56998765432",
+      "use": "mobile"
+    },
+    {
+      "system": "email",
+      "value": "pedro.lagos@example.com",
+      "use": "work"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1985-11-08",
+  "address": [
+    {
+      "use": "home",
+      "text": "Av. Libertador 890, Concepcion",
+      "city": "Concepcion",
+      "country": "CL"
+    }
+  ],
+  "contact": [
+    {
+      "relationship": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0131",
+              "code": "C",
+              "display": "Emergency Contact"
+            }
+          ]
+        }
+      ],
+      "name": {
+        "family": "Lagos",
+        "given": ["Ana"]
+      },
+      "telecom": [
+        {
+          "system": "phone",
+          "value": "+56911111111",
+          "use": "mobile"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "patient-rut",
+  "url": "https://example.org/fhir/SearchParameter/patient-rut",
+  "version": "1.0.0",
+  "name": "PatientRUT",
+  "title": "Busqueda de Paciente por RUT",
+  "status": "active",
+  "experimental": true,
+  "date": "2025-01-12",
+  "publisher": "Taller FHIRPath - Conectaton HL7 Chile",
+  "description": "SearchParameter personalizado que permite buscar pacientes por su RUT chileno. Este parametro demuestra como FHIRPath se usa para definir expresiones de busqueda.",
+  "code": "rut",
+  "base": ["Patient"],
+  "type": "token",
+  "expression": "Patient.identifier.where(type.coding.code='NNCHL')",
+  "xpathUsage": "normal",
+  "multipleOr": true,
+  "multipleAnd": true
+}

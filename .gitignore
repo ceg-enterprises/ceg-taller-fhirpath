@@ -1,0 +1,18 @@
+# Claude Code
+.claude/
+
+# Playwright screenshots
+.playwright-mcp/
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

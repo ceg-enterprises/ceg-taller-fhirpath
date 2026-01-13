@@ -1,0 +1,52 @@
+{
+  "resourceType": "Patient",
+  "id": "juan-gonzalez",
+  "meta": {
+    "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo"]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "NNCHL",
+            "display": "RUT Chile"
+          }
+        ]
+      },
+      "system": "http://regcivil.cl/run",
+      "value": "12345678-9"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "family": "Gonzalez",
+      "given": ["Juan", "Carlos"]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+56912345678",
+      "use": "mobile"
+    },
+    {
+      "system": "email",
+      "value": "juan.gonzalez@example.com",
+      "use": "home"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1990-05-15",
+  "address": [
+    {
+      "use": "home",
+      "text": "Av. Providencia 1234, Santiago",
+      "city": "Santiago",
+      "country": "CL"
+    }
+  ]
+}
