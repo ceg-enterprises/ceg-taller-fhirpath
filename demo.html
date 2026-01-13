@@ -2019,8 +2019,8 @@
         description: 'Los pacientes fueron creados ANTES del SearchParameter, por lo que no estan indexados. Ejecutamos un reindex:',
         highlights: [
           { type: 'warning', text: '<strong>Problema:</strong> Los pacientes existentes no tienen el indice "extranjero"' },
-          { type: 'info', text: 'El servidor debe recorrer los recursos y aplicar la expresion FHIRPath' },
-          { type: 'success', text: '<strong>$reindex</strong> fuerza al servidor a reindexar todos los recursos' }
+          { type: 'info', text: '<strong>targetSearchParameterTypes:</strong> URL del SearchParameter a reindexar' },
+          { type: 'success', text: '<strong>$reindex</strong> aplica la expresion FHIRPath a los recursos existentes' }
         ],
         resource: 'reindexParameters'
       },
@@ -2319,8 +2319,8 @@
       reindexParameters: {
         "resourceType": "Parameters",
         "parameter": [{
-          "name": "url",
-          "valueString": "Patient"
+          "name": "targetSearchParameterTypes",
+          "valueString": "https://example.org/fhir/SearchParameter/patient-extranjero"
         }]
       }
     };
