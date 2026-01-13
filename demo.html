@@ -574,6 +574,23 @@
       font-size: 0.8rem;
       line-height: 1.5;
       min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .response-body:has(#workshopEditorContainer) {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .response-body .view-toggle {
+      flex-shrink: 0;
+    }
+
+    .response-body:has(#workshopEditorContainer) .view-toggle {
+      padding: 0.5rem 0.875rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
     }
 
     .response-body pre {
@@ -1331,6 +1348,126 @@
       color: var(--text-secondary);
       line-height: 1.4;
     }
+
+    /* Workshop JSON Editor */
+    #workshopEditorContainer {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .workshop-json-editor {
+      position: relative;
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .workshop-json-highlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 1rem;
+      margin: 0;
+      background: transparent;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow: auto;
+      pointer-events: none;
+      color: var(--text-primary);
+    }
+
+    .workshop-json-input {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      padding: 1rem;
+      background: transparent;
+      border: none;
+      color: transparent;
+      caret-color: var(--text-primary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+      z-index: 1;
+    }
+
+    .workshop-json-input:focus + .workshop-json-highlight {
+      background: rgba(0, 102, 161, 0.03);
+    }
+
+    .workshop-editor-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .workshop-editor-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .workshop-editor-label svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--hl7-blue);
+    }
+
+    .workshop-editor-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .editor-action-btn {
+      padding: 0.3rem 0.6rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .editor-action-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: var(--hl7-blue);
+    }
+
+    .editor-action-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .editor-action-btn.reset {
+      color: var(--accent-orange);
+    }
+
+    .editor-action-btn.reset:hover {
+      border-color: var(--accent-orange);
+      background: rgba(255, 107, 53, 0.1);
+    }
   </style>
   <!-- FHIRPath.js library (browser build from official release) -->
   <script src="lib/fhirpath.min.js" charset="UTF-8"></script>
@@ -1555,6 +1692,7 @@
     const FHIR_BASE = 'http://localhost:8081/fhir';
     let currentStep = 0;
     let stepStates = {}; // Track execution state of each step
+    let editedResources = {}; // Store edited JSON for each step
 
     // ==================== STEP DATA ====================
     const STEPS = [
@@ -2002,6 +2140,87 @@
       return RESOURCES[step.resource];
     }
 
+    // ==================== WORKSHOP JSON EDITOR FUNCTIONS ====================
+    function getEditedJsonText(step, resource) {
+      // Return edited version if exists, otherwise original formatted JSON
+      if (editedResources[step.id]) {
+        return editedResources[step.id];
+      }
+      return JSON.stringify(resource, null, 2);
+    }
+
+    function getEditedResource() {
+      const step = STEPS[currentStep];
+      const input = document.getElementById('workshopJsonInput');
+      if (!input) return getResourceForStep(step);
+
+      try {
+        return JSON.parse(input.value);
+      } catch (e) {
+        // If invalid JSON, return the original resource
+        return getResourceForStep(step);
+      }
+    }
+
+    function updateWorkshopJsonHighlight() {
+      const input = document.getElementById('workshopJsonInput');
+      const highlight = document.getElementById('workshopJsonHighlight');
+      if (!input || !highlight) return;
+
+      const step = STEPS[currentStep];
+      const text = input.value;
+
+      // Save the edited content
+      editedResources[step.id] = text;
+
+      try {
+        // Try to parse and highlight valid JSON
+        const parsed = JSON.parse(text);
+        highlight.innerHTML = syntaxHighlight(parsed);
+      } catch (e) {
+        // If invalid JSON, show as plain text with error indication
+        const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        highlight.innerHTML = '<span style="color: var(--error-red);">' + escaped + '</span>';
+      }
+    }
+
+    function syncWorkshopScroll() {
+      const input = document.getElementById('workshopJsonInput');
+      const highlight = document.getElementById('workshopJsonHighlight');
+      if (!input || !highlight) return;
+
+      highlight.scrollTop = input.scrollTop;
+      highlight.scrollLeft = input.scrollLeft;
+    }
+
+    function formatWorkshopJson() {
+      const input = document.getElementById('workshopJsonInput');
+      if (!input) return;
+
+      try {
+        const parsed = JSON.parse(input.value);
+        input.value = JSON.stringify(parsed, null, 2);
+        updateWorkshopJsonHighlight();
+      } catch (e) {
+        // Show error feedback
+        alert('JSON invalido: ' + e.message);
+      }
+    }
+
+    function resetWorkshopJson() {
+      const step = STEPS[currentStep];
+      const resource = getResourceForStep(step);
+      const input = document.getElementById('workshopJsonInput');
+      if (!input || !resource) return;
+
+      // Clear the edited version
+      delete editedResources[step.id];
+
+      // Reset to original
+      input.value = JSON.stringify(resource, null, 2);
+      updateWorkshopJsonHighlight();
+    }
+
     // ==================== RENDER FUNCTIONS ====================
     function renderProgressBar() {
       const bar = document.getElementById('progressBar');
@@ -2104,7 +2323,40 @@
                     Response
                   </button>
                 </div>
-                <pre id="jsonContent">${syntaxHighlight(resource)}</pre>
+                <div id="workshopEditorContainer">
+                  <div class="workshop-editor-toolbar">
+                    <div class="workshop-editor-label">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                      <span>JSON Editable - Modifica antes de enviar</span>
+                    </div>
+                    <div class="workshop-editor-actions">
+                      <button class="editor-action-btn" onclick="formatWorkshopJson()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="21" y1="10" x2="3" y2="10"/>
+                          <line x1="21" y1="6" x2="3" y2="6"/>
+                          <line x1="21" y1="14" x2="3" y2="14"/>
+                          <line x1="21" y1="18" x2="3" y2="18"/>
+                        </svg>
+                        Formatear
+                      </button>
+                      <button class="editor-action-btn reset" onclick="resetWorkshopJson()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                          <path d="M3 3v5h5"/>
+                        </svg>
+                        Restaurar
+                      </button>
+                    </div>
+                  </div>
+                  <div class="workshop-json-editor">
+                    <textarea id="workshopJsonInput" class="workshop-json-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" oninput="updateWorkshopJsonHighlight()" onscroll="syncWorkshopScroll()">${getEditedJsonText(step, resource)}</textarea>
+                    <pre id="workshopJsonHighlight" class="workshop-json-highlight" aria-hidden="true"></pre>
+                  </div>
+                </div>
+                <pre id="jsonContent" style="display: none;"></pre>
               ` : `
                 <div class="response-placeholder">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -2124,6 +2376,11 @@
 
       const nextStep = STEPS[currentStep + 1];
       document.getElementById('nextStepPreview').textContent = nextStep ? nextStep.title : 'Fin del taller';
+
+      // Initialize workshop JSON editor highlighting
+      if (resource) {
+        updateWorkshopJsonHighlight();
+      }
     }
 
     let currentViewData = { request: null, response: null };
@@ -2136,13 +2393,23 @@
       buttons[view === 'request' ? 0 : 1].classList.add('active');
 
       const jsonContent = document.getElementById('jsonContent');
+      const editorContainer = document.getElementById('workshopEditorContainer');
+
       if (view === 'request') {
-        const resource = getResourceForStep(STEPS[currentStep]);
-        jsonContent.innerHTML = resource ? syntaxHighlight(resource) : '';
-      } else if (currentViewData.response) {
-        jsonContent.innerHTML = syntaxHighlight(currentViewData.response);
+        // Show the editable workshop editor, hide the static jsonContent
+        if (editorContainer) editorContainer.style.display = 'flex';
+        if (jsonContent) jsonContent.style.display = 'none';
       } else {
-        jsonContent.innerHTML = '<span style="color: var(--text-muted);">Ejecuta el paso para ver la respuesta</span>';
+        // Show response in jsonContent, hide the editor
+        if (editorContainer) editorContainer.style.display = 'none';
+        if (jsonContent) {
+          jsonContent.style.display = 'block';
+          if (currentViewData.response) {
+            jsonContent.innerHTML = syntaxHighlight(currentViewData.response);
+          } else {
+            jsonContent.innerHTML = '<span style="color: var(--text-muted);">Ejecuta el paso para ver la respuesta</span>';
+          }
+        }
       }
     }
 
@@ -2197,8 +2464,10 @@
         let response, data;
 
         if (step.id === 'createPatients') {
+          // Use edited patients array from workshop editor
+          const patients = getEditedResource();
           const results = [];
-          for (const patient of [RESOURCES.patientJuan, RESOURCES.patientMaria, RESOURCES.patientPedro]) {
+          for (const patient of patients) {
             const res = await fetch(`${FHIR_BASE}/Patient`, {
               method: 'POST',
               headers: {
@@ -2210,7 +2479,7 @@
             const patientData = await res.json();
             results.push({
               status: res.status,
-              name: patient.name[0].family,
+              name: patient.name?.[0]?.family || 'Unknown',
               id: patientData.id || 'error'
             });
           }
@@ -2224,7 +2493,8 @@
           data = await response.json();
           stepStates[step.id] = response.ok ? 'success' : 'error';
         } else {
-          const resource = getResourceForStep(step);
+          // Use the edited resource from the workshop editor
+          const resource = getEditedResource();
           const method = step.id === 'loadProfileV2' ? 'PUT' : 'POST';
           response = await fetch(`${FHIR_BASE}${step.endpoint.split(' ')[0]}`, {
             method: method,
