@@ -589,16 +589,18 @@
       flex-direction: column;
     }
 
-    .response-body:has(#workshopEditorContainer) {
+    .response-body.editor-mode {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .response-body.response-mode {
       padding: 0;
       overflow: hidden;
     }
 
     .response-body .action-bar {
       flex-shrink: 0;
-    }
-
-    .response-body:has(#workshopEditorContainer) .action-bar {
       padding: 0.5rem 0.875rem;
       background: var(--bg-secondary);
       border-bottom: 1px solid var(--border-color);
@@ -608,6 +610,19 @@
       white-space: pre-wrap;
       word-break: break-word;
       margin: 0;
+    }
+
+    .response-body pre#jsonContent {
+      flex: 1;
+      overflow: auto;
+      padding: 1rem;
+      min-height: 0;
+      background: var(--bg-primary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .response-placeholder {
@@ -2449,9 +2464,14 @@
       const nextStep = STEPS[currentStep + 1];
       document.getElementById('nextStepPreview').textContent = nextStep ? nextStep.title : 'Fin del taller';
 
-      // Initialize workshop JSON editor highlighting
+      // Initialize workshop JSON editor highlighting and set editor mode
       if (resource) {
         updateWorkshopJsonHighlight();
+        const responseBody = document.getElementById('responseBody');
+        if (responseBody) {
+          responseBody.classList.add('editor-mode');
+          responseBody.classList.remove('response-mode');
+        }
       }
     }
 
@@ -2466,11 +2486,16 @@
 
       const jsonContent = document.getElementById('jsonContent');
       const editorContainer = document.getElementById('workshopEditorContainer');
+      const responseBody = document.getElementById('responseBody');
 
       if (view === 'request') {
         // Show the editable workshop editor, hide the static jsonContent
         if (editorContainer) editorContainer.style.display = 'flex';
         if (jsonContent) jsonContent.style.display = 'none';
+        if (responseBody) {
+          responseBody.classList.add('editor-mode');
+          responseBody.classList.remove('response-mode');
+        }
       } else {
         // Show response in jsonContent, hide the editor
         if (editorContainer) editorContainer.style.display = 'none';
@@ -2481,6 +2506,10 @@
           } else {
             jsonContent.innerHTML = '<span style="color: var(--text-muted);">Ejecuta el paso para ver la respuesta</span>';
           }
+        }
+        if (responseBody) {
+          responseBody.classList.remove('editor-mode');
+          responseBody.classList.add('response-mode');
         }
       }
     }
