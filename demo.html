@@ -2009,14 +2009,30 @@
         resource: 'searchParameter'
       },
       {
-        id: 'searchWithSP',
+        id: 'reindexPatients',
         number: 10,
+        title: 'Reindexar Pacientes',
+        category: 'searchparam',
+        categoryLabel: 'SearchParameters',
+        method: 'POST',
+        endpoint: '/$reindex',
+        description: 'Los pacientes fueron creados ANTES del SearchParameter, por lo que no estan indexados. Ejecutamos un reindex:',
+        highlights: [
+          { type: 'warning', text: '<strong>Problema:</strong> Los pacientes existentes no tienen el indice "extranjero"' },
+          { type: 'info', text: 'El servidor debe recorrer los recursos y aplicar la expresion FHIRPath' },
+          { type: 'success', text: '<strong>$reindex</strong> fuerza al servidor a reindexar todos los recursos' }
+        ],
+        resource: 'reindexParameters'
+      },
+      {
+        id: 'searchWithSP',
+        number: 11,
         title: 'Buscar Extranjeros (con SearchParameter)',
         category: 'searchparam',
         categoryLabel: 'SearchParameters',
         method: 'GET',
         endpoint: '/Patient?extranjero=true',
-        description: 'Con el SearchParameter registrado, el servidor ejecuta la expresion FHIRPath internamente:',
+        description: 'Con el SearchParameter registrado y los pacientes reindexados, la busqueda funciona:',
         highlights: [
           { type: 'success', text: '<strong>Proceso:</strong> GET /Patient?extranjero=true' },
           { type: 'info', text: '1. El servidor busca en su indice de <code>extranjero</code>' },
@@ -2299,6 +2315,13 @@
         "base": ["Patient"],
         "type": "token",
         "expression": "Patient.extension.where(url='https://example.org/fhir/StructureDefinition/extranjero').value"
+      },
+      reindexParameters: {
+        "resourceType": "Parameters",
+        "parameter": [{
+          "name": "url",
+          "valueString": "Patient"
+        }]
       }
     };
 
