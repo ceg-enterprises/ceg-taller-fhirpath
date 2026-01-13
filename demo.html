@@ -1968,26 +1968,26 @@
         categoryLabel: 'SearchParameters',
         method: 'POST',
         endpoint: '/Patient (x3)',
-        description: 'Creamos 3 pacientes en el servidor para probar las busquedas. Cada uno tiene un RUT chileno diferente.',
+        description: 'Creamos 3 pacientes con la extension "extranjero" para probar las busquedas por extension:',
         highlights: [
-          { type: 'info', text: 'Juan Gonzalez: <code>12345678-9</code>' },
-          { type: 'info', text: 'Maria Silva: <code>123-4</code>' },
-          { type: 'info', text: 'Pedro Lagos: <code>98765432-1</code>' }
+          { type: 'info', text: 'Juan Gonzalez: <code>extranjero = false</code>' },
+          { type: 'success', text: 'Maria Silva: <code>extranjero = true</code>' },
+          { type: 'info', text: 'Pedro Lagos: <code>extranjero = false</code>' }
         ],
         resource: 'patients'
       },
       {
         id: 'searchWithoutSP',
         number: 8,
-        title: 'Buscar por RUT (sin SearchParameter)',
+        title: 'Buscar Extranjeros (sin SearchParameter)',
         category: 'searchparam',
         categoryLabel: 'SearchParameters',
         method: 'GET',
-        endpoint: '/Patient?rut=12345678-9',
-        description: 'Sin un SearchParameter, el servidor no sabe como interpretar el parametro "rut":',
+        endpoint: '/Patient?extranjero=true',
+        description: 'Sin un SearchParameter, el servidor no sabe como interpretar el parametro "extranjero":',
         highlights: [
-          { type: 'warning', text: '<strong>Problema:</strong> No existe una expresion FHIRPath asociada a "rut"' },
-          { type: 'warning', text: 'El servidor no puede navegar a <code>Patient.identifier.where(...)</code>' },
+          { type: 'warning', text: '<strong>Problema:</strong> No existe una expresion FHIRPath asociada a "extranjero"' },
+          { type: 'warning', text: 'El servidor no puede navegar a <code>Patient.extension.where(...)</code>' },
           { type: 'info', text: 'Resultado: Ignora el parametro o retorna error 400' },
           { type: 'info', text: '<strong>Solucion:</strong> Crear un SearchParameter con la expresion FHIRPath' }
         ],
@@ -1996,32 +1996,32 @@
       {
         id: 'loadSearchParam',
         number: 9,
-        title: 'Cargar SearchParameter RUT',
+        title: 'Cargar SearchParameter Extranjero',
         category: 'searchparam',
         categoryLabel: 'SearchParameters',
         method: 'POST',
         endpoint: '/SearchParameter',
-        description: 'Registramos un SearchParameter que usa FHIRPath para indexar el RUT:',
+        description: 'Registramos un SearchParameter que usa FHIRPath para buscar por la extension "extranjero":',
         highlights: [
-          { type: 'success', text: '<strong>Expression:</strong> <code>Patient.identifier.where(system=\'http://regcivil.cl/run\').value</code>' },
-          { type: 'note', text: '<strong>Patient.identifier</strong> navega a la coleccion de identificadores. <strong>where()</strong> filtra solo los que tengan system RUT chileno. <strong>.value</strong> extrae el valor para indexar.' }
+          { type: 'success', text: '<strong>Expression:</strong> <code>Patient.extension.where(url=\'...extranjero\').value</code>' },
+          { type: 'note', text: '<strong>Patient.extension</strong> navega a las extensiones. <strong>where()</strong> filtra por URL de la extension. <strong>.value</strong> extrae el valor booleano.' }
         ],
         resource: 'searchParameter'
       },
       {
         id: 'searchWithSP',
         number: 10,
-        title: 'Buscar por RUT (con SearchParameter)',
+        title: 'Buscar Extranjeros (con SearchParameter)',
         category: 'searchparam',
         categoryLabel: 'SearchParameters',
         method: 'GET',
-        endpoint: '/Patient?rut=12345678-9',
+        endpoint: '/Patient?extranjero=true',
         description: 'Con el SearchParameter registrado, el servidor ejecuta la expresion FHIRPath internamente:',
         highlights: [
-          { type: 'success', text: '<strong>Proceso:</strong> GET /Patient?rut=12345678-9' },
-          { type: 'info', text: '1. El servidor busca en su indice de <code>rut</code>' },
-          { type: 'info', text: '2. Encuentra pacientes donde <code>identifier.where(system=\'http://regcivil.cl/run\').value</code> = "12345678-9"' },
-          { type: 'success', text: '3. Retorna un Bundle con los pacientes que coinciden' }
+          { type: 'success', text: '<strong>Proceso:</strong> GET /Patient?extranjero=true' },
+          { type: 'info', text: '1. El servidor busca en su indice de <code>extranjero</code>' },
+          { type: 'info', text: '2. Encuentra pacientes donde la extension tiene <code>valueBoolean = true</code>' },
+          { type: 'success', text: '3. Retorna un Bundle con Maria Silva (extranjera)' }
         ],
         resource: null
       }
@@ -2163,6 +2163,10 @@
         "meta": {
           "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo|1.0.0"]
         },
+        "extension": [{
+          "url": "https://example.org/fhir/StructureDefinition/extranjero",
+          "valueBoolean": false
+        }],
         "identifier": [{
           "system": "http://regcivil.cl/run",
           "value": "12345678-9"
@@ -2185,6 +2189,10 @@
         "meta": {
           "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo|1.0.0"]
         },
+        "extension": [{
+          "url": "https://example.org/fhir/StructureDefinition/extranjero",
+          "valueBoolean": true
+        }],
         "identifier": [{
           "system": "http://regcivil.cl/run",
           "value": "123-4"
@@ -2250,6 +2258,10 @@
         "meta": {
           "profile": ["https://example.org/fhir/StructureDefinition/PacienteChilenoDemo|1.0.0"]
         },
+        "extension": [{
+          "url": "https://example.org/fhir/StructureDefinition/extranjero",
+          "valueBoolean": false
+        }],
         "identifier": [{
           "system": "http://regcivil.cl/run",
           "value": "98765432-1"
@@ -2274,19 +2286,19 @@
       },
       searchParameter: {
         "resourceType": "SearchParameter",
-        "id": "patient-rut",
-        "url": "https://example.org/fhir/SearchParameter/patient-rut",
+        "id": "patient-extranjero",
+        "url": "https://example.org/fhir/SearchParameter/patient-extranjero",
         "version": "1.0.0",
-        "name": "PatientRUT",
+        "name": "PatientExtranjero",
         "status": "active",
         "experimental": true,
         "date": "2025-01-12",
         "publisher": "Taller FHIRPath - Conectaton HL7 Chile",
-        "description": "SearchParameter personalizado para buscar pacientes por RUT chileno.",
-        "code": "rut",
+        "description": "SearchParameter para buscar pacientes segun si son extranjeros.",
+        "code": "extranjero",
         "base": ["Patient"],
         "type": "token",
-        "expression": "Patient.identifier.where(system='http://regcivil.cl/run').value"
+        "expression": "Patient.extension.where(url='https://example.org/fhir/StructureDefinition/extranjero').value"
       }
     };
 
