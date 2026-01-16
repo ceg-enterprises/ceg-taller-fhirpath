@@ -1,4 +1,4 @@
-# Taller FHIRPath - Conectaton HL7 Chile 2025
+# Taller FHIRPath - Connectathon HL7 Chile 2026
 
 > **Taller practico sobre FHIRPath:** Aprende a usar expresiones FHIRPath para crear invariantes de validacion y SearchParameters personalizados en FHIR.
 
@@ -487,10 +487,10 @@ ceg-taller-fhirpath/
 
 ## Creditos
 
-Taller desarrollado por **CEG Consultores SpA** para el Conectaton HL7 Chile 2025.
+Taller desarrollado por **CEG Consultores SpA** para el Connectathon HL7 Chile 2026.
 
 Para consultas o soporte: contacto@ceg.cl
 
 ---
 
-*Ultima actualizacion: Enero 2025*
+*Ultima actualizacion: Enero 2026*
